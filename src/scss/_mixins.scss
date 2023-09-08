@@ -1,0 +1,41 @@
+@import '';
+
+// TITLES
+@mixin title-h2 {
+  font-family: 'Arial', sans-serif;
+  font-weight: 700;
+  font-size: 1rem;
+  line-height: 1rem;
+}
+
+@mixin title-h2-576 {
+  font-family: 'Arial', sans-serif;
+  font-weight: 700;
+  font-size: 1rem;
+  line-height: 1rem;
+}
+
+@mixin title-h3 {
+  font-family: 'Arial', sans-serif;
+  font-weight: 700;
+  font-size: 1rem;
+  line-height: 1rem;
+}
+
+@mixin title-h3-576 {
+  font-family: 'Arial', sans-serif;
+  font-weight: 700;
+  font-size: 1rem;
+  line-height: 1rem
+}
+
+// MEDIA
+@mixin media($minmax, $media) {
+  @each $size, $resolution in $sizes {
+    @if $media == $size {
+      @media only screen and (#{$minmax}-width: $resolution) {
+        @content;
+      }
+    }
+  }
+}
