@@ -38,7 +38,7 @@ function createAccountDOM() {
   setChildren(accountForm, [accountTitle, accountLoginBlock, accountBtn]);
   mount(account, accountForm);
 
-  return { account, accountLogin, accountPassword };
+  return account;
 }
 
 export { addWrapper, createAccountDOM };

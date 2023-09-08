@@ -1,7 +1,6 @@
 import JustValidate from 'just-validate';
 
 function formValidation(form = null, login = null, password = null) {
-  // VALIDATION
   const validation = new JustValidate(`#${form}`, {
     errorFieldStyle: {
       backgroundColor: 'rgba(255, 105, 114, 1)', // red_input
@@ -30,10 +29,6 @@ function formValidation(form = null, login = null, password = null) {
       },
     ])
     .addField(`#${password}`, [
-      {
-        rule: 'password',
-        errorMessage: 'Недопустимый формат',
-      },
       {
         rule: 'required',
         errorMessage: 'Вы не ввели пароль',
