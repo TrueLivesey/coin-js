@@ -1,2 +1,5 @@
-@import './reset';
-@import './common';
+@import './_reset';
+@import './_vars';
+@import './_common';
+@import './pages/_header';
+@import './pages/_account';

@@ -1,0 +1,3 @@
+function createError() {}
+
+export { createError };

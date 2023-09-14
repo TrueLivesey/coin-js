@@ -7,10 +7,6 @@ const config = {
     filename: '[name].bundle.js',
   },
   module: {
-    devServer: {
-      host: 'localhost',
-      port: 3001,
-    },
     rules: [
       {
         test: /\.css$/,

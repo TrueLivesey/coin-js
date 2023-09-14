@@ -1,3 +1,3 @@
-import { initRouting } from './modules/_router';
+import { initRouting } from './modules/router';
 
 initRouting();

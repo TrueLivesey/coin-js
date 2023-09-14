@@ -5,7 +5,7 @@ html {
 }
 
 body {
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'Noto Sans', sans-serif;
   font-size: 16px;
   line-height: normal;
   color: #000;
@@ -46,4 +46,9 @@ p {
 .basic-input {
   padding: 0.5rem;
   border: 1px solid grey;
+}
+
+.title-h2 {
+  font: 600 2rem 'Rubik', sans-serif;
+  line-height: 120%;
 }

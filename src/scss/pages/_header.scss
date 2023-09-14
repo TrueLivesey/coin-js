@@ -1,0 +1,11 @@
+.header {
+  background: $gradientMain;
+
+  &__content {
+    padding: 1.5rem 3rem;
+  }
+
+  &__logo {
+    fill: white;
+  }
+}

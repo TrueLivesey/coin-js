@@ -253,6 +253,7 @@ const cacheFiles = () => {
 // watcher
 function watching() {
   browserSync.init({
+    port: 3001,
     server: {
       baseDir: `${buildFolder}`,
     },
