@@ -52,3 +52,25 @@ p {
   font: 600 2rem 'Rubik', sans-serif;
   line-height: 120%;
 }
+
+.preloader {
+  width: 1.2rem;
+  height: 1.2rem;
+  border-radius: 50%;
+  display: inline-block;
+  border-top: 3px solid #FFF;
+  border-right: 3px solid transparent;
+  box-sizing: border-box;
+  animation: anPreloader 1s linear infinite;
+  
+}
+
+@keyframes anPreloader {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}

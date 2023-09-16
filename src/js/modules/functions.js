@@ -34,4 +34,12 @@ function elemRemove(elem) {
   }
 }
 
+function addPreloader(btn) {
+  btn.innerHtml = '<div class="preloader"></div>';
+}
+
+function removePreloader(preloader) {
+  preloader.remove();
+}
+
 export { createError, errorTranslate, elemRemove };
