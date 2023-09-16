@@ -1,5 +1,6 @@
 .account {
   padding: 3rem 4rem;
+  margin: 2rem 0;
   background: linear-gradient(white, white) padding-box,
               linear-gradient(to right, rgba(71, 118, 230, 1), rgba(142, 84, 233, 1)) border-box;
   border-radius: 3rem;
@@ -53,7 +54,14 @@
     background: $colorBlue;
   }
 
+  &__error {
+    color: $colorRedError;
+    font-size: 0.875rem;
+    cursor: default;
+  }
+
   .just-validate-error-label {
     font-size: 0.875rem;
+    cursor: default;
   }
 }
