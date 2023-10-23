@@ -2,10 +2,25 @@
   background: $gradientMain;
 
   &__content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     padding: 1.5rem 3rem;
   }
 
   &__logo {
     fill: white;
+  }
+  
+  &__nav {
+    display: flex;
+    gap: 2rem;
+  }
+
+  &__btn {
+    padding: 0.5rem 1.5rem;
+    color: $colorBlack;
+    background-color: $colorWhite;
+    border-radius: 0.5rem;
   }
 }

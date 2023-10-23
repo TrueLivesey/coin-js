@@ -3,17 +3,24 @@ $colorWhite: #fff;
 $colorBlack: #171717;
 $colorGray: #BEC4CF;
 $colorBlue: #4875E6;
+$colorBlueDark: #182233;
+$colorBlueCloudy: #374151;
 $colorRedError: rgb(184, 17, 17);
+$colorPurple: #BBA1FF;
 
 // GRADIENTS
 $gradientMain: linear-gradient(90deg, #4776E6 0%, #8E54E9 100%);
+
+// SHADOWS
+$shadow: 0px 3.01109px 9.95282px 0px rgba(55, 65, 81, 0.02), 0px 7.22507px 24.24745px 0px rgba(55, 65, 81, 0.03), 0px 14.14402px 45.89198px 0px rgba(55, 65, 81, 0.06), 0px 27px 80px 0px rgba(55, 65, 81, 0.14);
 
 // GAP
 $gapSmall: 1.5rem;
 $gap: 2rem;
 
 // BORDER-RADIUS
-$borderRadius: 7px;
+$borderRadius: 0.5rem;
+$borderRadiusModal: 1rem;
 
 // MEDIA SIZES
 $sizes: ("xs":320px, "sm":480px, "md":576px, "lg":768px, "xl":1024px);

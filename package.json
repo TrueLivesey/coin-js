@@ -55,6 +55,10 @@
     "sass": "^1.63.6",
     "style-loader": "^3.3.3",
     "swiper": "^10.0.4",
+    "webpack": "^5.88.2",
     "webpack-stream": "^7.0.0"
+  },
+  "dependencies": {
+    "connect-history-api-fallback": "^2.0.0"
   }
 }

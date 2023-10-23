@@ -24,6 +24,7 @@ import plumber from 'gulp-plumber';
 import notify from 'gulp-notify';
 
 // MODULES
+import webpack from 'webpack';
 import webpackStream from 'webpack-stream';
 import autoprefixer from 'gulp-autoprefixer';
 import { create as browserSyncCreate } from 'browser-sync';
@@ -32,6 +33,7 @@ import gulpif from 'gulp-if';
 import rev from 'gulp-rev';
 import revdel from 'gulp-rev-delete-original';
 import { deleteAsync } from 'del';
+import historyApiFallback from 'connect-history-api-fallback';
 
 // ПУТИ
 const srcFolder = './src';
@@ -138,6 +140,10 @@ function scripts() {
         mode: isProd ? 'production' : 'development',
         output: {
           filename: 'main.js',
+          publicPath: '/',
+        },
+        devServer: {
+          historyApiFallback: true,
         },
         module: {
           rules: [
@@ -256,6 +262,7 @@ function watching() {
     port: 3001,
     server: {
       baseDir: `${buildFolder}`,
+      middleware: [historyApiFallback()],
     },
   });
 

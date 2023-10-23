@@ -1,5 +1,7 @@
 @import './_reset';
 @import './_vars';
 @import './_common';
+@import './modal';
 @import './pages/_header';
-@import './pages/_account';
+@import './pages/_authorization';
+@import './pages/accounts';

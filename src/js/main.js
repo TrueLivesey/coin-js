@@ -1,3 +1,5 @@
 import { initRouting } from './modules/router';
 
-initRouting();
+document.addEventListener('DOMContentLoaded', () => {
+  initRouting();
+});
