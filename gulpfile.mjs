@@ -5,11 +5,14 @@ const { src, dest, series, watch } = gulp;
 import fileInclude from 'gulp-file-include';
 import htmlmin from 'gulp-htmlmin';
 
-// CSS + SASS
+// CSS + SASS + POSTCSS
 import * as dartSass from 'sass';
 import gulpSass from 'gulp-sass';
 const sass = gulpSass(dartSass);
 import cleanCSS from 'gulp-clean-css';
+// import postcss from 'postcss';
+import gulpPostcss from 'gulp-postcss';
+import pxtorem from 'postcss-pxtorem';
 
 // IMAGE + SVG
 import imagemin, { mozjpeg, optipng } from 'gulp-imagemin';
@@ -102,6 +105,22 @@ const htmlMinify = () => {
 
 // функция обработки стилей
 function styles() {
+  const processors = [
+    pxtorem({
+      replace: false,
+      propList: [
+        'font',
+        'font-size',
+        'line-height',
+        'letter-spacing',
+        'padding',
+        'margin',
+        'width',
+        'height',
+      ],
+    }),
+  ];
+
   return src(srcPaths.srcScssFolder, { sourcemaps: !isProd })
     .pipe(plumber(plumberNotify('SCSS')))
     .pipe(sass())
@@ -120,6 +139,7 @@ function styles() {
         }),
       ),
     )
+    .pipe(gulpPostcss(processors))
     .pipe(dest(appPaths.buildCssFolder, { sourcemaps: '.' }))
     .pipe(browserSync.stream());
 }
@@ -163,6 +183,10 @@ function scripts() {
                   ],
                 },
               },
+            },
+            {
+              test: /\.css$/i,
+              use: ['style-loader', 'css-loader'],
             },
           ],
         },

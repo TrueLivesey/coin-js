@@ -13,7 +13,12 @@
     gap: 4.4rem;
   }
 
+  &__title-block {
+    display: flex;
+  }
+
   &__title {
+    margin-right: 3rem;
     color: $colorBlack;
     font-size: 2rem;
     font-style: normal;
@@ -25,15 +30,15 @@
     margin-right: 0.8rem;
   }
 
-  &__btn {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1rem 1.5rem;
-    color: $colorWhite;
-    background: $gradientMain;
-    border-radius: $borderRadius;
-  }
+  // &__btn {
+  //   display: flex;
+  //   justify-content: space-between;
+  //   align-items: center;
+  //   padding: 1rem 1.5rem;
+  //   color: $colorWhite;
+  //   background: $gradientMain;
+  //   border-radius: $borderRadius;
+  // }
 
   .account {
     display: flex;

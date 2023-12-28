@@ -100,51 +100,27 @@ function initRouting() {
     }
   }
 
-  // Главная страница (авторизация)
-  router.on('/', () => {
-    const main = document.querySelector('.main');
-    const app = document.getElementById('app');
-    const token = localStorage.getItem('token');
+  function changeBtnSelected(btnName, status) {
+    const btn = document.getElementById(`js-nav-${btnName}`);
 
-    if (document.querySelector('.header__nav')) {
-      document.querySelector('.header__nav').remove();
+    if (status === 'add') {
+      btn.disabled = true;
+      btn.classList.add('btn-selected');
+    } else if (status === 'remove') {
+      btn.disabled = false;
+      btn.classList.remove('btn-selected');
     }
+  }
 
-    if (checkToken(main, app, token)) return;
-
-    router.navigate('accounts');
-  });
-
-  // Страница аккаунта
-  router.on('/accounts', () => {
-    const main = document.querySelector('.main');
-    const app = document.getElementById('app');
-    const containerError = el('.container.container-error');
-    const header = document.querySelector('.header');
-    const headerContent = header.querySelector('.header__content');
-    const headerNav = createHeaderNavDOM();
-    const token = localStorage.getItem('token');
-    const modalExit = createExitModal(router).modal;
-    const overlay = createExitModal(router).overlay;
-
-    // Очищаем страницу с авторизацией
-    app.innerHTML = '';
-    main.classList.remove('authorization-main');
-    app.classList.add('accounts');
-
-    // если токен пустой, то пользователь не вошел в аккаунт
-    if (!token) {
-      const errorUserNotFound = createError('Вы не вошли в аккаунт');
-
-      errorUserNotFound.classList.add('user-not-found');
-      mount(app, containerError);
-      mount(containerError, errorUserNotFound);
-    }
-
-    // добавляем навигацию на страницу аккаунта
+  // Создание блока с навигацией
+  function createNav(details = false) {
     if (!document.querySelector('.header__nav')) {
+      const header = document.querySelector('.header');
+      const headerContent = header.querySelector('.header__content');
+      const headerNav = createHeaderNavDOM();
       mount(headerContent, headerNav);
-
+      const modalExit = createExitModal(router).modal;
+      const overlay = createExitModal(router).overlay;
       const wrapper = document.querySelector('.wrapper');
       const atmsBtn = document.getElementById('js-nav-atms');
       const accountsBtn = document.getElementById('js-nav-accounts');
@@ -154,8 +130,11 @@ function initRouting() {
       const navBtnsLength = navBtns.length;
       const routes = ['atms', 'accounts', 'currency'];
 
-      accountsBtn.classList.add('btn-selected');
-      accountsBtn.disabled = true;
+      if (!details) {
+        changeBtnSelected('accounts', 'add');
+      } else {
+        changeBtnSelected('accounts', 'remove');
+      }
 
       for (let i = 0; i < navBtnsLength; ++i) {
         const btn = navBtns[i];
@@ -196,12 +175,61 @@ function initRouting() {
         });
       });
     }
+  }
+
+  // Главная страница (авторизация)
+  router.on('/', () => {
+    const main = document.querySelector('.main');
+    const app = document.getElementById('app');
+    const token = localStorage.getItem('token');
+
+    if (document.querySelector('.header__nav')) {
+      document.querySelector('.header__nav').remove();
+    }
+
+    if (checkToken(main, app, token)) return;
+
+    router.navigate('accounts');
+  });
+
+  // Страница аккаунта
+  router.on('/accounts', () => {
+    const main = document.querySelector('.main');
+    const app = document.getElementById('app');
+    const containerError = el('.container.container-error');
+    const token = localStorage.getItem('token');
+
+    // Очищаем страницу с авторизацией
+    app.innerHTML = '';
+    main.classList.remove('authorization-main');
+    app.classList.add('accounts');
+
+    // если токен пустой, то пользователь не вошел в аккаунт
+    if (!token) {
+      const errorUserNotFound = createError('Вы не вошли в аккаунт');
+
+      errorUserNotFound.classList.add('user-not-found');
+      mount(app, containerError);
+      mount(containerError, errorUserNotFound);
+    }
+
+    // добавляем навигацию на страницу аккаунта
+    createNav();
+    changeBtnSelected('accounts', 'add');
 
     Api.getAccounts(token).then((value) => {
       if (value.error === '') {
         const accounts = createAccounts(value.payload);
-
         mount(app, accounts);
+        const accountBtns = document.querySelectorAll('.account__btn');
+
+        accountBtns.forEach((btn) => {
+          btn.addEventListener('click', () => {
+            const accountNumber = btn.parentNode.parentNode.dataset.number;
+            changeBtnSelected('accounts', 'remove');
+            router.navigate(`/accounts/${accountNumber}`);
+          });
+        });
 
         // Создаем новый счёт
         const newAccountBtn = document.querySelector('.accounts__btn');
@@ -226,7 +254,11 @@ function initRouting() {
                   dateSort,
                 );
 
-                mount(accountsList, newAccount);
+                newAccount.accountBtn.addEventListener('click', () => {
+                  console.log('new btn');
+                });
+
+                mount(accountsList, newAccount.account);
               });
             } else {
               const newAccountError = new TypeError(value.error);
@@ -238,6 +270,31 @@ function initRouting() {
         console.error(value.error);
       }
     });
+  });
+
+  router.on('/accounts/:id/', ({ data }) => {
+    console.log(data); // { id: 'xxx', action: 'save' }
+    const main = document.querySelector('.main');
+    const app = document.getElementById('app');
+    const containerError = el('.container.container-error');
+    const token = localStorage.getItem('token');
+
+    // Очищаем страницу с авторизацией
+    app.innerHTML = '';
+    main.classList.remove('authorization-main');
+    app.classList.add('accounts');
+
+    // если токен пустой, то пользователь не вошел в аккаунт
+    if (!token) {
+      const errorUserNotFound = createError('Вы не вошли в аккаунт');
+      errorUserNotFound.classList.add('user-not-found');
+      mount(app, containerError);
+      mount(containerError, errorUserNotFound);
+    }
+
+    // Создаём навигацию
+    createNav(true);
+    changeBtnSelected('accounts', 'remove');
   });
 
   router.resolve();

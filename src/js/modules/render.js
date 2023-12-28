@@ -76,9 +76,9 @@ function createHeaderNavDOM() {
 
   for (let i = 0; i < headerNavContentsLength; ++i) {
     const headerBtn = el('button.header__btn');
+
     headerBtn.textContent = headerNavContents[i];
     headerBtn.id = headerNavIds[i];
-
     mount(headerNav, headerBtn);
   }
 
@@ -110,7 +110,7 @@ function createAccount(number, amount, date, dateSort) {
   setChildren(accountDateBottom, [accountDateBlock, accountBtn]);
   setChildren(account, [accountNumber, accountAmount, accountDateBottom]);
 
-  return account;
+  return { account, accountBtn };
 }
 
 // создание кастомного селекта
@@ -248,8 +248,9 @@ function createAccountsSelect() {
 // создание страницы со счетами
 function createAccounts(data) {
   const accountsTitleBlock = el('.accounts__top');
+  const titleAndSelect = el('.accounts__title-block');
   const accountsTitle = el('h2.accounts__title');
-  const accountsBtn = el('button.accounts__btn');
+  const accountsBtn = el('button.main-btn.accounts__btn');
   const accountsContent = el('.accounts__content');
   const container = el('.container');
   const accountsList = el('.accounts__list');
@@ -262,8 +263,8 @@ function createAccounts(data) {
   accountsBtn.innerHTML = `Создать новый счёт`;
 
   mount(accountsContent, container);
-
-  setChildren(accountsTitleBlock, [accountsTitle, select, accountsBtn]);
+  setChildren(titleAndSelect, [accountsTitle, select]);
+  setChildren(accountsTitleBlock, [titleAndSelect, accountsBtn]);
 
   // создание элемента со всеми счетами
   data.forEach((dataValue) => {
@@ -292,7 +293,7 @@ function createAccounts(data) {
       amount,
       accountDate,
       dateSort,
-    );
+    ).account;
 
     mount(accountsList, account);
   });
@@ -301,6 +302,9 @@ function createAccounts(data) {
 
   return accountsContent;
 }
+
+// Создание страницы конкретного счёта (просмотр счёта)
+function createAccountDetails(data) {}
 
 export {
   createAuthorizationDOM,
