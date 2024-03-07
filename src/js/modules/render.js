@@ -2,8 +2,9 @@
 import { setChildren, mount, el, svg } from 'redom';
 
 // функции приложения
-import { MonthArray } from '../const';
-import { accountSort } from './functions';
+import { Icons } from '../const';
+import { accountSort, elemRemove } from './functions';
+import { showMore } from './show-more';
 
 // страница с авторизацией
 function createAuthorizationDOM() {
@@ -94,7 +95,7 @@ function createAccount(number, amount, date, dateSort) {
   const accountDateBlock = el('.account__date-block');
   const accountDateText = el('span.account__text');
   const accountDate = el('span.account__date');
-  const accountBtn = el('button.account__btn');
+  const accountBtn = el('button.btn-blue');
 
   accountDateText.textContent = 'Последняя транзакция:';
   accountNumber.textContent = number;
@@ -114,14 +115,9 @@ function createAccount(number, amount, date, dateSort) {
 }
 
 // создание кастомного селекта
-function createAccountsSelect() {
+function createAccountsSelect(mode, data = null) {
   const select = el('.account-select');
   const selectBtn = el('.account-select__btn');
-  const selectIcon = svg(
-    'svg#js-account-select-icon.account-select__icon',
-    { width: 10, height: 5 },
-    svg('use', { xlink: { href: 'images/sprite.svg#select-arrow' } }),
-  );
   const selectPlaceholder = el('span.account-select__placeholder');
   const options = el('ul.account-options');
   const optionNumber = el('span#js-account-option-number.account-option__text');
@@ -131,83 +127,102 @@ function createAccountsSelect() {
   const optionTransaction = el(
     'span#js-account-option-transaction.account-option__text',
   );
+  let optionsArr = [];
+  let selectIcon = null || Icons.selectArrow;
+  selectIcon.classList.add('account-select__icon');
 
-  optionNumber.textContent = 'По номеру';
-  optionBalance.textContent = 'По балансу';
-  optionTransaction.textContent = 'По последней транзакции';
+  if (mode === 'sort') {
+    selectIcon.id = 'js-account-select-icon';
+    optionNumber.textContent = 'По номеру';
+    optionBalance.textContent = 'По балансу';
+    optionTransaction.textContent = 'По последней транзакции';
 
-  const optionsArr = [optionNumber, optionBalance, optionTransaction];
+    optionsArr = [optionNumber, optionBalance, optionTransaction];
 
-  // сортировка по номеру счёта
-  optionNumber.addEventListener('click', () => {
-    const accountField = document.querySelector('.accounts__list');
-    let accountFieldSort = null;
+    // сортировка по номеру счёта
+    optionNumber.addEventListener('click', () => {
+      const accountField = document.querySelector('.accounts__list');
+      let accountFieldSort = null;
 
-    accountField.dataset.sortBalance = false;
-    accountField.dataset.sortTransaction = false;
-
-    if (accountField.dataset.sortNumber === 'false') {
-      accountFieldSort = accountSort(accountField, 'number', true);
-      accountField.dataset.sortNumber = true;
-    } else {
-      accountFieldSort = accountSort(accountField, 'number');
-      accountField.dataset.sortNumber = false;
-    }
-
-    accountField.innerHTML = '';
-
-    accountFieldSort.forEach((account) => {
-      accountField.append(account);
-    });
-  });
-
-  // сортировка по балансу
-  optionBalance.addEventListener('click', () => {
-    const accountField = document.querySelector('.accounts__list');
-    let accountFieldSort = null;
-
-    accountField.dataset.sortNumber = false;
-    accountField.dataset.sortTransaction = false;
-
-    if (accountField.dataset.sortBalance === 'false') {
-      accountFieldSort = accountSort(accountField, 'balance', true);
-      accountField.dataset.sortBalance = true;
-    } else {
-      accountFieldSort = accountSort(accountField, 'balance');
       accountField.dataset.sortBalance = false;
-    }
-
-    accountField.innerHTML = '';
-
-    accountFieldSort.forEach((account) => {
-      accountField.append(account);
-    });
-  });
-
-  // сортировка по последней транзакции
-  optionTransaction.addEventListener('click', () => {
-    const accountField = document.querySelector('.accounts__list');
-    let accountFieldSort = null;
-
-    accountField.dataset.sortNumber = false;
-    accountField.dataset.sortBalance = false;
-
-    if (accountField.dataset.sortTransaction === 'false') {
-      accountFieldSort = accountSort(accountField, 'transaction', true);
-      accountField.dataset.sortTransaction = true;
-    } else {
-      accountFieldSort = accountSort(accountField, 'transaction');
       accountField.dataset.sortTransaction = false;
-    }
 
-    accountField.innerHTML = '';
+      if (accountField.dataset.sortNumber === 'false') {
+        accountFieldSort = accountSort(accountField, 'number', true);
+        accountField.dataset.sortNumber = true;
+      } else {
+        accountFieldSort = accountSort(accountField, 'number');
+        accountField.dataset.sortNumber = false;
+      }
 
-    accountFieldSort.forEach((account) => {
-      accountField.append(account);
+      accountField.innerHTML = '';
+
+      accountFieldSort.forEach((account) => {
+        accountField.append(account);
+      });
     });
-  });
 
-  selectPlaceholder.textContent = 'Сортировка';
+    // сортировка по балансу
+    optionBalance.addEventListener('click', () => {
+      const accountField = document.querySelector('.accounts__list');
+      let accountFieldSort = null;
+
+      accountField.dataset.sortNumber = false;
+      accountField.dataset.sortTransaction = false;
+
+      if (accountField.dataset.sortBalance === 'false') {
+        accountFieldSort = accountSort(accountField, 'balance', true);
+        accountField.dataset.sortBalance = true;
+      } else {
+        accountFieldSort = accountSort(accountField, 'balance');
+        accountField.dataset.sortBalance = false;
+      }
+
+      accountField.innerHTML = '';
+
+      accountFieldSort.forEach((account) => {
+        accountField.append(account);
+      });
+    });
+
+    // сортировка по последней транзакции
+    optionTransaction.addEventListener('click', () => {
+      const accountField = document.querySelector('.accounts__list');
+      let accountFieldSort = null;
+
+      accountField.dataset.sortNumber = false;
+      accountField.dataset.sortBalance = false;
+
+      if (accountField.dataset.sortTransaction === 'false') {
+        accountFieldSort = accountSort(accountField, 'transaction', true);
+        accountField.dataset.sortTransaction = true;
+      } else {
+        accountFieldSort = accountSort(accountField, 'transaction');
+        accountField.dataset.sortTransaction = false;
+      }
+
+      accountField.innerHTML = '';
+
+      accountFieldSort.forEach((account) => {
+        accountField.append(account);
+      });
+    });
+
+    selectPlaceholder.textContent = 'Сортировка';
+  } else if (mode === 'account') {
+    selectIcon = Icons.accountSelectArrow;
+    selectIcon.id = 'js-account-select-icon-amount';
+    selectIcon.classList.add('account-select__icon');
+    selectPlaceholder.textContent = 'Выберите номер счёта';
+    selectBtn.classList.add('account-form__select-btn');
+    data.forEach((dataAmount) => {
+      let optionAccount = el(
+        `span#js-amount-${dataAmount}.account-option__text`,
+      );
+      optionAccount.textContent = dataAmount;
+      optionsArr.push(optionAccount);
+    });
+  }
 
   optionsArr.forEach((optionSpan) => {
     const option = el('li.account-option');
@@ -217,7 +232,17 @@ function createAccountsSelect() {
         '.account-option__text',
       ).innerText;
 
+      if (
+        mode === 'account' &&
+        select.parentElement.nextElementSibling.classList.contains(
+          'account-error',
+        )
+      ) {
+        elemRemove('account-error');
+      }
+
       selectPlaceholder.innerText = selectedOption;
+      selectPlaceholder.classList.add('account-select__placeholder--black');
       select.classList.remove('active');
     });
     mount(option, optionSpan);
@@ -249,12 +274,12 @@ function createAccountsSelect() {
 function createAccounts(data) {
   const accountsTitleBlock = el('.accounts__top');
   const titleAndSelect = el('.accounts__title-block');
-  const accountsTitle = el('h2.accounts__title');
+  const accountsTitle = el('h2.main-title.accounts__title');
   const accountsBtn = el('button.main-btn.accounts__btn');
   const accountsContent = el('.accounts__content');
   const container = el('.container');
   const accountsList = el('.accounts__list');
-  const select = createAccountsSelect();
+  const select = createAccountsSelect('sort');
 
   accountsList.dataset.sortNumber = false;
   accountsList.dataset.sortBalance = false;
@@ -274,7 +299,7 @@ function createAccounts(data) {
     let numberOfMilliseconds = null;
     let accountDate = '—';
     let dateSort = 0;
-    let amount = 0;
+    let amount = dataValue.balance;
 
     if (lastTransaction) {
       date = new Date(`${lastTransaction.date}`).toLocaleString('ru', {
@@ -285,7 +310,7 @@ function createAccounts(data) {
       numberOfMilliseconds = new Date(`${lastTransaction.date}`).getTime();
       dateSort = numberOfMilliseconds;
       accountDate = `${date.slice(0, -3)}`;
-      amount = lastTransaction.amount;
+      // amount = lastTransaction.amount;
     }
 
     const account = createAccount(
@@ -304,11 +329,163 @@ function createAccounts(data) {
 }
 
 // Создание страницы конкретного счёта (просмотр счёта)
-function createAccountDetails(data) {}
+function createAccountDetails() {
+  function createAccountTop(data) {
+    const accountTitleBlock = el('.account-top');
+    const accountTitleAndBtn = el('.account-top__top');
+    const accountNumberAndBalance = el('.account-top__bottom');
+    const accountNumber = el('p.account-top__number');
+    const accountTitle = el('h2.main-title.account__title');
+    const accountBtn = el('button.btn-back.btn-blue');
+    const accountBalanceBlock = el('.account-top__balance-block');
+    const accountBalance = el('span.account-top__balance');
+    const accountAmount = el('span.account-top__amount');
+
+    accountTitle.textContent = 'Просмотр счёта';
+    accountBtn.textContent = 'Вернуться назад';
+    accountBalance.textContent = 'Баланс';
+    accountNumber.textContent = `№ ${data.account}`;
+    accountAmount.textContent = `${parseFloat(data.balance)} ₽`;
+
+    setChildren(accountBalanceBlock, [accountBalance, accountAmount]);
+    setChildren(accountTitleAndBtn, [accountTitle, accountBtn]);
+    setChildren(accountNumberAndBalance, [accountNumber, accountBalanceBlock]);
+    setChildren(accountTitleBlock, [
+      accountTitleAndBtn,
+      accountNumberAndBalance,
+    ]);
+
+    return accountTitleBlock;
+  }
+
+  function createNewTrans(usersAmounts) {
+    const newTransForm = el(
+      'form#account-form.account__new-transaction.account-form',
+    );
+    const newTransTitle = el('h3.title-h3.account-form__title');
+    const newTransSelectItem = el('.account-form__item');
+    const newTransSelectText = el(
+      'p.account-form__text-number',
+      'Номер счёта получателя',
+    );
+    const newTransSelect = createAccountsSelect('account', usersAmounts);
+    const newTransAmount = el('.account-form__item');
+    const newTransLabelAmount = el(
+      'label.account-form__label',
+      'Сумма перевода',
+      { for: 'account-form-amount' },
+    );
+    const newTransInputAmount = el('input.account-form__input', {
+      id: 'account-form-amount',
+      type: 'text',
+    });
+    const newTransBtn = el('button.btn-blue.account-form__btn');
+    const newTransBtnIcon = Icons.accountEmailIcon;
+
+    newTransAmount.addEventListener('input', () => {
+      elemRemove('account-error-amount');
+    });
+
+    newTransBtnIcon.classList.add('account-form__btn-icon');
+    newTransBtn.textContent = 'Отправить';
+    newTransBtn.appendChild(newTransBtnIcon);
+    newTransTitle.textContent = 'Новый перевод';
+    newTransInputAmount.setAttribute('placeholder', 'Введите число');
+    setChildren(newTransSelectItem, [newTransSelectText, newTransSelect]);
+    setChildren(newTransAmount, [newTransLabelAmount, newTransInputAmount]);
+    setChildren(newTransForm, [
+      newTransTitle,
+      newTransSelectItem,
+      newTransAmount,
+      newTransBtn,
+    ]);
+
+    return newTransForm;
+  }
+
+  // Динамика баланса
+  function createBalanceDynamic(data) {
+    const wrapper = el('.account-dynamic');
+    const title = el('h3.title-h3.account-dynamic__title', 'Динамика баланса');
+    const chartWrapper = el('.dynamic-chart');
+    const canvas = el(
+      'canvas#account-balance-chart.canvas.dynamic-chart__canvas',
+    );
+
+    wrapper.append(title);
+    chartWrapper.append(canvas);
+    wrapper.append(chartWrapper);
+
+    return wrapper;
+  }
+
+  return { createAccountTop, createNewTrans, createBalanceDynamic };
+}
+
+// История переводов
+function createHistory(data, userData) {
+  const tabelContainer = el('.account-table-container');
+  const tabel = el('table.account-table');
+  const caption = el(
+    'caption.title-h3.account-table__title',
+    'История переводов',
+  );
+  const thead = el('thead.account-table__thead');
+  const theadTr = el('tr.account-table__thead-tr');
+  const theadThArray = ['Счёт отправителя', 'Счёт получателя', 'Сумма', 'Дата'];
+  const tbody = el('tbody.account-table__tbody');
+  let i = 0;
+
+  tabel.append(caption);
+
+  theadThArray.forEach((thName) => {
+    const th = el('th.account-table__th', `${thName}`);
+
+    theadTr.append(th);
+  });
+
+  data.transactions.forEach((transaction) => {
+    const tr = el('tr.account-table__tr');
+    const sendersAccount = el('td.account-table__td', `${transaction.from}`);
+    const recipientsAccount = el('td.account-table__td', `${transaction.to}`);
+    const amount = el('td.account-table__td', `${transaction.amount}`);
+    const dateObj = new Date(transaction.date);
+    const date = el(
+      'td.account-table__td',
+      `${dateObj.getDate()}.${(dateObj.getMonth() + 1)
+        .toString()
+        .padStart(2, '0')}.${dateObj.getFullYear()}`,
+    );
+
+    if (userData === transaction.to) {
+      amount.textContent = `+ ${transaction.amount}`;
+      amount.style.color = '#76CA66';
+    } else {
+      amount.textContent = `- ${transaction.amount}`;
+      amount.style.color = '#FD4E5D';
+    }
+
+    if (i >= 10) {
+      tr.classList.add('is-hidden');
+    }
+
+    i++;
+    tr.append(sendersAccount, recipientsAccount, amount, date);
+    tbody.append(tr);
+  });
+
+  thead.append(theadTr);
+  tabel.append(thead, tbody);
+  tabelContainer.append(tabel);
+
+  return tabelContainer;
+}
 
 export {
   createAuthorizationDOM,
   createHeaderNavDOM,
   createAccount,
   createAccounts,
+  createAccountDetails,
+  createHistory,
 };

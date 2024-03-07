@@ -10,6 +10,7 @@
 
   &__logo {
     fill: white;
+    font-size: 0;
   }
   
   &__nav {
@@ -19,7 +20,8 @@
 
   &__btn {
     padding: 0.5rem 1.5rem;
-    color: $colorBlack;
+    // color: $colorBlack;
+    color: $colorMenu;
     background-color: $colorWhite;
     border-radius: 0.5rem;
   }

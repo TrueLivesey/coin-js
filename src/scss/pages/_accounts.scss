@@ -13,32 +13,20 @@
     gap: 4.4rem;
   }
 
-  &__title-block {
-    display: flex;
+  &__title {
+    white-space: nowrap;
   }
 
-  &__title {
-    margin-right: 3rem;
-    color: $colorBlack;
-    font-size: 2rem;
-    font-style: normal;
-    font-weight: 600;
-    line-height: normal;
+  &__title-block {
+    display: flex;
+    align-items: center;
+    gap: 10%;
+    width: 520px;
   }
 
   &__plus {
     margin-right: 0.8rem;
   }
-
-  // &__btn {
-  //   display: flex;
-  //   justify-content: space-between;
-  //   align-items: center;
-  //   padding: 1rem 1.5rem;
-  //   color: $colorWhite;
-  //   background: $gradientMain;
-  //   border-radius: $borderRadius;
-  // }
 
   .account {
     display: flex;
@@ -75,61 +63,6 @@
 
     &__date {
       font-size: 0.8rem;
-    }
-
-    &__btn {
-      padding: 1rem 1.5rem;
-      color: $colorWhite;
-      background-color: $colorBlue;
-      font-size: 1rem;
-      font-style: normal;
-      font-weight: 500;
-      line-height: 125%;
-      border-radius: 0.5rem;
-    }
-
-    &-select {
-      position: relative;
-      width: 18rem;
-
-      &__btn {
-        display: flex;
-        place-content: center space-between;
-        padding: 0.6rem 1rem;
-        background: linear-gradient(white, white) padding-box,
-              linear-gradient(to right, rgba(71, 118, 230, 1), rgba(142, 84, 233, 1)) border-box;
-        border-radius: 0.5rem;
-        border: 2px solid transparent;
-        cursor: pointer;
-      }
-
-      &.active {
-        .account-options {
-          display: block;
-        }
-
-        .account-select__icon {
-          transform: rotate(-180deg);
-        }
-      }
-    }
-
-    &-options {
-      position: absolute;
-      display: none;
-      width: 100%;
-      padding: 1rem;
-      border-radius: $borderRadius;
-      background: $colorWhite;
-      box-shadow: $shadow;
-    }
-
-    &-option {
-      cursor: pointer;
-
-      &:not(:last-child) {
-        margin-bottom: 1rem;
-      }
     }
   }
 }

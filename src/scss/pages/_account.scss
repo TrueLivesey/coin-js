@@ -1,0 +1,261 @@
+.account {
+  &__content {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-areas: 
+    'new-trans dynamic'
+    'history history';
+    gap: 50px;
+  }
+
+  &-select {
+    position: relative;
+    // width: 18rem;
+    width: 100%;
+
+    &__btn {
+      display: flex;
+      place-content: center space-between;
+      padding: 0.6rem 1rem;
+      background: linear-gradient(white, white) padding-box,
+            linear-gradient(to right, rgba(71, 118, 230, 1), rgba(142, 84, 233, 1)) border-box;
+      border-radius: 0.5rem;
+      border: 2px solid transparent;
+      cursor: pointer;
+    }
+
+    &.active {
+      .account-options {
+        display: block;
+      }
+
+      .account-select__icon {
+        transform: rotate(-180deg);
+      }
+    }
+  }
+
+  &-options {
+    position: absolute;
+    display: none;
+    width: 100%;
+    padding: 1rem;
+    border-radius: $borderRadius;
+    background: $colorWhite;
+    box-shadow: $shadow;
+  }
+
+  &-option {
+    cursor: pointer;
+
+    &:not(:last-child) {
+      margin-bottom: 1rem;
+    }
+  }
+
+  &-top {
+    margin-bottom: 50px;
+
+    &__top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    &__bottom {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    &__number {
+      color: $colorBlueCloudy;
+      font-size: 1.75rem;
+      font-weight: 400;
+    }
+
+    &__balance-block {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 20px;
+    }
+
+    &__balance {
+      font-size: 1.25rem;
+      font-weight: 700;
+    }
+
+    &__amount {
+      font-size: 1.25rem;
+    }
+  }
+
+  &-form {
+    grid-area: new-trans;
+    max-width: 615px;
+    padding: 25px 50px;
+    background-color: $colorWhiteSmoke;
+    border-radius: $borderRadiusMain;
+
+    &__title {
+      margin-bottom: 25px;
+    }
+
+    &__item {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      margin-bottom: 25px;
+    }
+
+    &__select-btn {
+      border: 1px solid $colorSantaGray;
+
+      .account-select__placeholder {
+        color: $colorPaleSky;
+        font-size: 16px;
+        line-height: 24px;
+
+        &--black {
+          color: $colorBlack;
+        }
+      }
+    }
+    
+    &__text-number {
+      display: block;
+      text-align: end;
+      min-width: 197px;
+      font-size: 1rem;
+      font-style: normal;
+      font-weight: 500;
+      line-height: 1.25rem;
+    }
+
+    &__label {
+      display: block;
+      text-align: end;
+      min-width: 197px;
+      font-size: 1rem;
+      font-style: normal;
+      font-weight: 500;
+      line-height: 1.25rem;
+    }
+
+    &__input {
+      width: 100%;
+      padding: 10px 15px;
+      border-radius: $borderRadiusInput;
+      border: 1px solid $colorSantaGray;
+      color: $colorBlack;
+      background-color: $colorWhite;
+
+      &::placeholder {
+        color: $colorPaleSky;
+        font-size: 16px;
+        line-height: 24px;
+      }
+    }
+
+    &__btn {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+      margin-left: 217px;
+    }
+
+    &__btn-icon {
+      order: -1;
+      fill: white;
+    }
+
+    &__successful {
+      margin-top: -15px;
+      margin-bottom: 25px;
+      margin-left: 217px;
+      color: $colorGreenError;
+    }
+
+  }
+
+  &-dynamic {
+    grid-area: dynamic;
+    padding: 25px 50px;
+    border-radius: $borderRadiusMain;
+    box-shadow: $shadow;
+
+    &__title {
+      margin-bottom: 16px;
+    }
+  }
+
+  &-error {
+    margin-top: -15px;
+    margin-bottom: 25px;
+    margin-left: 217px;
+    color: $colorRedError;
+  }
+
+  &-table-container {
+    grid-area: history;
+    padding: 25px 50px 50px;
+    border-radius: $borderRadiusMain;
+    background-color: $colorWhiteSmoke;
+  }
+
+  &-table {
+    width: 100%;
+    padding: 0 50px;
+    margin-bottom: 25px;
+    table-layout: fixed;
+    text-align: left;
+    border-collapse: collapse;
+
+    &__title {
+      padding: 25px 0px;
+      text-align: left;
+    }
+
+    &__thead {
+      background-color: $colorBlue;
+    }
+
+    &__th {
+      padding: 20px 40px;
+      color: $colorWhite;
+      font-weight: 500;
+      font-size: 20px;
+      line-height: 120%;
+
+      &:first-child {
+        border-radius: 15px 0 0 15px;
+      }
+
+      &:nth-child(3) {
+        width: 160px;
+      }
+
+      &:last-child {
+        width: 420px;
+        border-radius: 0 15px 15px 0;
+      }
+    }
+
+    &__tr {
+      border-bottom: 1px solid $colorTableBorder;
+    }
+
+    &__td {
+      padding: 20px 40px;
+      line-height: 150%;
+    }
+
+    &__btn {
+      margin-left: auto;
+      margin-right: auto;
+    }
+  }
+}

@@ -1,7 +1,11 @@
+// Components
 @import './reset';
 @import './vars';
 @import './common';
 @import './modal';
+
+// Sections
 @import './pages/_header';
 @import './pages/_authorization';
 @import './pages/accounts';
+@import './pages/account';

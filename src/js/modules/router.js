@@ -8,11 +8,20 @@ import {
   createHeaderNavDOM,
   createAccount,
   createAccounts,
+  createAccountDetails,
+  createHistory,
 } from './render';
-import { formValidation } from './validate';
+import { formValidation, accountFormValidation } from './validate';
 import { Api } from '../api/api';
-import { createError, errorTranslate, elemRemove } from './functions';
+import {
+  createError,
+  errorTranslate,
+  elemRemove,
+  removeClass,
+} from './functions';
 import { openModal, closeModal, createExitModal } from './modal';
+import { showMore } from './show-more';
+import { createDynamicChart, drawChart } from '../libs/dynamic-chart';
 
 // Инициализация роутера
 function initRouting() {
@@ -221,7 +230,7 @@ function initRouting() {
       if (value.error === '') {
         const accounts = createAccounts(value.payload);
         mount(app, accounts);
-        const accountBtns = document.querySelectorAll('.account__btn');
+        const accountBtns = document.querySelectorAll('.btn-blue');
 
         accountBtns.forEach((btn) => {
           btn.addEventListener('click', () => {
@@ -272,17 +281,20 @@ function initRouting() {
     });
   });
 
+  // Страница конкретного счёта
   router.on('/accounts/:id/', ({ data }) => {
-    console.log(data); // { id: 'xxx', action: 'save' }
+    // console.log(data); // { id: 'xxx', action: 'save' }
     const main = document.querySelector('.main');
     const app = document.getElementById('app');
     const containerError = el('.container.container-error');
     const token = localStorage.getItem('token');
+    let accounts = null;
 
     // Очищаем страницу с авторизацией
     app.innerHTML = '';
     main.classList.remove('authorization-main');
-    app.classList.add('accounts');
+    app.classList.add('account');
+    removeClass(app, 'accounts');
 
     // если токен пустой, то пользователь не вошел в аккаунт
     if (!token) {
@@ -295,6 +307,133 @@ function initRouting() {
     // Создаём навигацию
     createNav(true);
     changeBtnSelected('accounts', 'remove');
+
+    // Получаем все счета пользователей
+    Api.getAccounts(token).then((dataAccounts) => {
+      accounts = dataAccounts.payload;
+    });
+
+    // Получаем конкретный счёт пользователя
+    Api.getAccountId(token, data.id).then((userData) => {
+      if (userData.error) {
+        console.error('Ошибка');
+      } else {
+        const container = el('.container');
+        const accountContent = el('.account__content');
+        const userDataPayload = userData.payload;
+        let accountsArray = [];
+        let sum = null;
+
+        // Создаём массив из всех счетов пользователей кроме того, на который
+        // пользователь перешёл
+        if (accounts) {
+          accounts.forEach((accountId) => {
+            if (accountId.account !== userDataPayload.account) {
+              accountsArray.push(accountId.account);
+            }
+          });
+        }
+
+        const accountTop =
+          createAccountDetails().createAccountTop(userDataPayload);
+        const accountNewTrans =
+          createAccountDetails().createNewTrans(accountsArray);
+        const accountHistory = createHistory(
+          userDataPayload,
+          userDataPayload.account,
+        );
+        const balanceDynamic =
+          createAccountDetails().createBalanceDynamic(userDataPayload);
+
+        setChildren(accountContent, [
+          accountNewTrans,
+          balanceDynamic,
+          accountHistory,
+        ]);
+        setChildren(container, [accountTop, accountContent]);
+        app.append(container);
+
+        // Создаем график баланса
+        createDynamicChart(userData.payload, 'six').then((chartData) => {
+          drawChart(chartData, 'account-balance-chart');
+        });
+
+        // Кнопка "Вернуться назад"
+        const returnBtn = document.querySelector('.btn-back');
+        returnBtn.addEventListener('click', () => {
+          router.navigate(`/accounts`);
+        });
+
+        // Отправляем перевод
+        const accountBtn = document.querySelector('.account-form__btn');
+        const accountInput = document.getElementById('account-form-amount');
+        const accountSelectBtn = document.querySelector('.account-select');
+        const accountTableTrs = document.querySelectorAll('.account-table__tr');
+        const accountTableTbody = document.querySelector(
+          '.account-table__tbody',
+        );
+        const acountTableContainer = document.querySelector(
+          '.account-table-container',
+        );
+        const accountTableShowBtn = el(
+          'button#account-table-btn.main-btn.account-table__btn',
+          'Показать ещё',
+        );
+
+        acountTableContainer.append(accountTableShowBtn);
+
+        accountInput.addEventListener('change', () => {
+          sum = accountInput.value;
+        });
+
+        accountBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+
+          const accountSelect = document.querySelector(
+            '.account-select__placeholder',
+          );
+
+          if (accountFormValidation(accountSelectBtn, accountInput)) {
+            Api.transferFunds(
+              token,
+              data.id,
+              accountSelect.innerHTML,
+              sum,
+            ).then((userData) => {
+              // console.log(userData);
+              const balanceElem = document.querySelector(
+                '.account-top__amount',
+              );
+              const accountFormItems = document.querySelectorAll(
+                '.account-form__item',
+              );
+              const accountFormAmount = document.getElementById(
+                'account-form-amount',
+              );
+              const trueValidate = el(
+                'p.account-form__successful',
+                'Перевод прошёл успешно',
+              );
+
+              accountFormItems[1].after(trueValidate);
+              accountFormAmount.value = '';
+              balanceElem.innerHTML = `${userData.payload.balance} ₽`;
+            });
+          }
+        });
+
+        if (accountTableTrs.length > 10) {
+          showMore(
+            accountTableTbody,
+            accountTableTrs,
+            accountTableShowBtn,
+            10,
+            10,
+            'hidden',
+          );
+        }
+      }
+    });
   });
 
   router.resolve();

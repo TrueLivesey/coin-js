@@ -96,10 +96,17 @@ function accountSort(field, method, reverse = false) {
 }
 
 // Удаление элемента, если он существует на странице
-function elemRemove(elem) {
-  if (document.querySelector(`.${elem}`)) {
-    document.querySelector(`.${elem}`).remove();
+function elemRemove(className) {
+  if (document.querySelector(`.${className}`)) {
+    document.querySelector(`.${className}`).remove();
   }
 }
 
-export { createError, errorTranslate, accountSort, elemRemove };
+// Удаление класса
+function removeClass(elem, className) {
+  if (elem && elem.classList.contains(className)) {
+    elem.classList.remove(className);
+  }
+}
+
+export { createError, errorTranslate, accountSort, elemRemove, removeClass };

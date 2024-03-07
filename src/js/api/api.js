@@ -83,6 +83,33 @@ class Api {
       return newError;
     }
   }
+
+  static async transferFunds(token, from, to, amount) {
+    try {
+      const response = await fetch(`${END_POINT}/transfer-funds`, {
+        method: 'POST',
+        body: JSON.stringify({
+          from,
+          to,
+          amount,
+        }),
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Basic ${token}`,
+        },
+      });
+      const data = await response.json();
+
+      console.log(to);
+
+      return data;
+    } catch (error) {
+      const newError = new TypeError(error);
+      console.error(newError);
+
+      return newError;
+    }
+  }
 }
 
 export { Api };

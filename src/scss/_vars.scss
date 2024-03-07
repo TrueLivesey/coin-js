@@ -1,12 +1,19 @@
 // COLORS
 $colorWhite: #fff;
 $colorBlack: #171717;
+$colorWhiteSmoke: #F3F4F6;
 $colorGray: #BEC4CF;
+$colorSantaGray: #9CA3AF;
+$colorPaleSky: #6B7280;
+$colorGreenError: #3cbf43;
+$colorTableBorder: #D6E0F9;
 $colorBlue: #4875E6;
 $colorBlueDark: #182233;
 $colorBlueCloudy: #374151;
 $colorRedError: rgb(184, 17, 17);
-$colorPurple: #BBA1FF;
+$colorPurple: #a888ff;
+$colorMenu: #4D4192;
+// $colorPurple: #BBA1FF;
 
 // GRADIENTS
 $gradientMain: linear-gradient(90deg, #4776E6 0%, #8E54E9 100%);
@@ -21,6 +28,8 @@ $gap: 2rem;
 // BORDER-RADIUS
 $borderRadius: 0.5rem;
 $borderRadiusModal: 1rem;
+$borderRadiusMain: 3.125rem;
+$borderRadiusInput: 0.5rem;
 
 // MEDIA SIZES
 $sizes: ("xs":320px, "sm":480px, "md":576px, "lg":768px, "xl":1024px);
