@@ -1,0 +1,14 @@
+.history {
+  &-content {
+    display: flex;
+    flex-direction: column;
+    gap: 50px;
+    margin-bottom: 50px;
+  }
+  
+  &-dynamic {
+    padding: 20px 60px;
+    border-radius: $borderRadiusMain;
+    box-shadow: 0 0px 1px 0 rgba(0, 0, 0, 0.07), 0 1px 4px 0 rgba(0, 0, 0, 0.1), 0 1px 9px 0 rgba(0, 0, 0, 0.14), 0 4px 31px 0 rgba(0, 0, 0, 0.21);
+  }
+}

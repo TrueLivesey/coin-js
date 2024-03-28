@@ -330,22 +330,19 @@ function createAccounts(data) {
 
 // Создание страницы конкретного счёта (просмотр счёта)
 function createAccountDetails() {
-  function createAccountTop(data) {
+  function createAccountTop(data, title) {
     const accountTitleBlock = el('.account-top');
     const accountTitleAndBtn = el('.account-top__top');
     const accountNumberAndBalance = el('.account-top__bottom');
-    const accountNumber = el('p.account-top__number');
-    const accountTitle = el('h2.main-title.account__title');
-    const accountBtn = el('button.btn-back.btn-blue');
+    const accountNumber = el('p.account-top__number', `№ ${data.account}`);
+    const accountTitle = el('h2.main-title.account__title', `${title}`);
+    const accountBtn = el('button.btn-back.btn-blue', 'Вернуться назад');
     const accountBalanceBlock = el('.account-top__balance-block');
-    const accountBalance = el('span.account-top__balance');
-    const accountAmount = el('span.account-top__amount');
-
-    accountTitle.textContent = 'Просмотр счёта';
-    accountBtn.textContent = 'Вернуться назад';
-    accountBalance.textContent = 'Баланс';
-    accountNumber.textContent = `№ ${data.account}`;
-    accountAmount.textContent = `${parseFloat(data.balance)} ₽`;
+    const accountBalance = el('span.account-top__balance', 'Баланс');
+    const accountAmount = el(
+      'span.account-top__amount',
+      `${parseFloat(data.balance)} ₽`,
+    );
 
     setChildren(accountBalanceBlock, [accountBalance, accountAmount]);
     setChildren(accountTitleAndBtn, [accountTitle, accountBtn]);
@@ -404,13 +401,11 @@ function createAccountDetails() {
   }
 
   // Динамика баланса
-  function createBalanceDynamic(data) {
-    const wrapper = el('.account-dynamic');
-    const title = el('h3.title-h3.account-dynamic__title', 'Динамика баланса');
+  function createBalanceDynamic(wrapperName, id, titleName) {
+    const wrapper = el(wrapperName);
+    const title = el('h3.title-h3.account-dynamic__title', `${titleName}`);
     const chartWrapper = el('.dynamic-chart');
-    const canvas = el(
-      'canvas#account-balance-chart.canvas.dynamic-chart__canvas',
-    );
+    const canvas = el(`canvas#${id}.canvas.dynamic-chart__canvas`);
 
     wrapper.append(title);
     chartWrapper.append(canvas);
@@ -423,13 +418,21 @@ function createAccountDetails() {
 }
 
 // История переводов
-function createHistory(data, userData) {
+function createHistory(data, userData, mode) {
+  let caption = null;
+
+  // Кликабельность заголовка
+  if (mode === 'clickable') {
+    caption = el(
+      'button#history-btn.title-h3.account-table__title',
+      'История переводов',
+    );
+  } else {
+    caption = el('h3.title-h3.account-table__title', 'История переводов');
+  }
+
   const tabelContainer = el('.account-table-container');
   const tabel = el('table.account-table');
-  const caption = el(
-    'caption.title-h3.account-table__title',
-    'История переводов',
-  );
   const thead = el('thead.account-table__thead');
   const theadTr = el('tr.account-table__thead-tr');
   const theadThArray = ['Счёт отправителя', 'Счёт получателя', 'Сумма', 'Дата'];

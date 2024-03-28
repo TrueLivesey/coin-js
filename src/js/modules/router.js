@@ -21,7 +21,12 @@ import {
 } from './functions';
 import { openModal, closeModal, createExitModal } from './modal';
 import { showMore } from './show-more';
-import { createDynamicChart, drawChart } from '../libs/dynamic-chart';
+import {
+  createDynamicChart,
+  createDynamicChartRatio,
+  drawChart,
+  drawChartRatio,
+} from './dynamic-chart';
 
 // Инициализация роутера
 function initRouting() {
@@ -334,16 +339,23 @@ function initRouting() {
           });
         }
 
-        const accountTop =
-          createAccountDetails().createAccountTop(userDataPayload);
+        const accountTop = createAccountDetails().createAccountTop(
+          userDataPayload,
+          'Просмотр счета',
+        );
         const accountNewTrans =
           createAccountDetails().createNewTrans(accountsArray);
         const accountHistory = createHistory(
           userDataPayload,
           userDataPayload.account,
+          'clickable',
         );
-        const balanceDynamic =
-          createAccountDetails().createBalanceDynamic(userDataPayload);
+        // Динамика баланса
+        const balanceDynamic = createAccountDetails().createBalanceDynamic(
+          '.account-dynamic',
+          'account-balance-chart',
+          'Динамика баланса',
+        );
 
         setChildren(accountContent, [
           accountNewTrans,
@@ -353,15 +365,23 @@ function initRouting() {
         setChildren(container, [accountTop, accountContent]);
         app.append(container);
 
+        // Клик по "истории переводов"
+        const historyBtn = document.getElementById('history-btn');
+        historyBtn.addEventListener('click', () => {
+          const currentUrl = window.location.pathname;
+          const newUrl = currentUrl + '/history';
+          router.navigate(`accounts/${data.id}/history`);
+        });
+
         // Создаем график баланса
-        createDynamicChart(userData.payload, 'six').then((chartData) => {
+        createDynamicChart(userData.payload, 6).then((chartData) => {
           drawChart(chartData, 'account-balance-chart');
         });
 
         // Кнопка "Вернуться назад"
         const returnBtn = document.querySelector('.btn-back');
         returnBtn.addEventListener('click', () => {
-          router.navigate(`/accounts`);
+          history.back();
         });
 
         // Отправляем перевод
@@ -400,7 +420,6 @@ function initRouting() {
               accountSelect.innerHTML,
               sum,
             ).then((userData) => {
-              // console.log(userData);
               const balanceElem = document.querySelector(
                 '.account-top__amount',
               );
@@ -422,6 +441,7 @@ function initRouting() {
           }
         });
 
+        // Показать ещё
         if (accountTableTrs.length > 10) {
           showMore(
             accountTableTbody,
@@ -433,6 +453,100 @@ function initRouting() {
           );
         }
       }
+    });
+  });
+
+  // Страница истории
+  router.on('/accounts/:id/history', ({ data }) => {
+    const main = document.querySelector('.main');
+    const app = document.getElementById('app');
+    const containerError = el('.container.container-error');
+    const token = localStorage.getItem('token');
+    const container = el('.container');
+    let accounts = null;
+
+    // Очищаем страницу с авторизацией
+    app.innerHTML = '';
+    main.classList.remove('authorization-main');
+    app.classList.add('account');
+    removeClass(app, 'accounts');
+
+    // если токен пустой, то пользователь не вошел в аккаунт
+    if (!token) {
+      const errorUserNotFound = createError('Вы не вошли в аккаунт');
+      errorUserNotFound.classList.add('user-not-found');
+      mount(app, containerError);
+      mount(containerError, errorUserNotFound);
+    }
+
+    // Создаём навигацию
+    createNav(true);
+    changeBtnSelected('accounts', 'remove');
+
+    // Получаем данные о счете пользователя
+    Api.getAccountId(token, data.id).then((dataAccount) => {
+      const historyTop = createAccountDetails().createAccountTop(
+        dataAccount.payload,
+        'Просмотр счета',
+      );
+      const historyContent = el('.history-content');
+      const accountsHistory = createHistory(
+        dataAccount.payload,
+        dataAccount.payload.account,
+      );
+      const historyTableShowBtn = el(
+        'button#history-table-btn.main-btn.account-table__btn',
+        'Показать ещё',
+      );
+      const accountTableTrs =
+        accountsHistory.querySelectorAll('.account-table__tr');
+      const accountTableTbody = accountsHistory.querySelector(
+        '.account-table__tbody',
+      );
+      // Динамика баланса
+      const balanceDynamic = createAccountDetails().createBalanceDynamic(
+        '.history-dynamic',
+        'history-balance-chart',
+        'Динамика баланса',
+      );
+      // Динамика соотношения
+      const balanceDynamicRatio = createAccountDetails().createBalanceDynamic(
+        '.history-dynamic.history-dynamic-chart',
+        'history-balance-ratio',
+        'Соотношение входящих исходящих транзакций',
+      );
+
+      // Показать ещё
+      if (accountTableTrs.length > 10) {
+        accountsHistory.append(historyTableShowBtn);
+        showMore(
+          accountTableTbody,
+          accountTableTrs,
+          historyTableShowBtn,
+          10,
+          10,
+          'hidden',
+        );
+      }
+
+      historyContent.append(balanceDynamic, balanceDynamicRatio);
+      container.append(historyTop, historyContent, accountsHistory);
+      app.append(container);
+
+      const btnBack = container.querySelector('.btn-back');
+
+      btnBack.addEventListener('click', () => {
+        history.back();
+      });
+
+      createDynamicChart(dataAccount.payload, 12).then((chartData) => {
+        drawChart(chartData, 'history-balance-chart');
+      });
+
+      createDynamicChartRatio(dataAccount.payload).then((chartData) => {
+        console.log('chartData:', chartData);
+        drawChartRatio(chartData, 'history-balance-ratio');
+      });
     });
   });
 
