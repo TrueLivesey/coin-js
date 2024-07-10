@@ -29,31 +29,43 @@ const Icons = {
   selectArrow: svg(
     'svg',
     { width: 10, height: 5 },
-    svg('use', { xlink: { href: 'images/sprite.svg#select-arrow' } }),
+    svg('use', { xlink: { href: '/images/sprite.svg#select-arrow' } }),
   ),
 
   accountSelectArrow: svg(
     'svg',
     { width: 10, height: 5 },
-    svg('use', { xlink: { href: '../images/sprite.svg#select-arrow' } }),
+    svg('use', { xlink: { href: '/images/sprite.svg#select-arrow' } }),
+  ),
+
+  exchange1: svg(
+    'svg',
+    { width: 10, height: 5 },
+    svg('use', { xlink: { href: '/images/sprite.svg#select-arrow' } }),
+  ),
+
+  exchange2: svg(
+    'svg',
+    { width: 10, height: 5 },
+    svg('use', { xlink: { href: '/images/sprite.svg#select-arrow' } }),
   ),
 
   emailIcon: svg(
     'svg',
     { width: 20, height: 16 },
-    svg('use', { xlink: { 'xlink:href': 'images/sprite.svg#btn-email' } }),
+    svg('use', { xlink: { 'xlink:href': '/images/sprite.svg#btn-email' } }),
   ),
 
   accountEmailIcon: svg(
     'svg',
     { width: 20, height: 16 },
-    svg('use', { xlink: { 'xlink:href': '../images/sprite.svg#btn-email' } }),
+    svg('use', { xlink: { 'xlink:href': '/images/sprite.svg#btn-email' } }),
   ),
 
   plus: svg(
     'svg',
     { width: 20, height: 16 },
-    svg('use', { xlink: { href: 'images/sprite.svg#plus' } }),
+    svg('use', { xlink: { href: '/images/sprite.svg#plus' } }),
   ),
 };
 

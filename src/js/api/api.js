@@ -84,6 +84,7 @@ class Api {
     }
   }
 
+  // Перевод средств со счёта на счёт
   static async transferFunds(token, from, to, amount) {
     try {
       const response = await fetch(`${END_POINT}/transfer-funds`, {
@@ -101,6 +102,74 @@ class Api {
       const data = await response.json();
 
       console.log(to);
+
+      return data;
+    } catch (error) {
+      const newError = new TypeError(error);
+      console.error(newError);
+
+      return newError;
+    }
+  }
+
+  // Массив со списком кодов всех используемых бэкендом валют на данный момент
+  static async getAllCurrencies(token) {
+    try {
+      const response = await fetch(`${END_POINT}/all-currencies`, {
+        method: 'GET',
+        headers: {
+          'Content-type': 'application/json',
+          Authorization: `Basic ${token}`,
+        },
+      });
+      const data = await response.json();
+
+      return data;
+    } catch (error) {
+      const newError = new TypeError(error);
+      console.error(newError);
+
+      return newError;
+    }
+  }
+
+  // Список валютных счетов текущего пользователя
+  static async getCurrencies(token) {
+    try {
+      const response = await fetch(`${END_POINT}/currencies`, {
+        method: 'GET',
+        headers: {
+          'Content-type': 'application/json',
+          Authorization: `Basic ${token}`,
+        },
+      });
+      const data = await response.json();
+
+      return data;
+    } catch (error) {
+      const newError = new TypeError(error);
+      console.error(newError);
+
+      return newError;
+    }
+  }
+
+  // Валютный обмен
+  static async currencyBuy(token, from, to, amount) {
+    try {
+      const response = await fetch(`${END_POINT}/transfer-funds`, {
+        method: 'POST',
+        body: JSON.stringify({
+          from,
+          to,
+          amount,
+        }),
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Basic ${token}`,
+        },
+      });
+      const data = await response.json();
 
       return data;
     } catch (error) {

@@ -8,6 +8,7 @@ $colorPaleSky: #6B7280;
 $colorGreenError: #3cbf43;
 $colorTableBorder: #D6E0F9;
 $colorBlue: #4875E6;
+$colorBlueLight: #6C91ED;
 $colorBlueDark: #182233;
 $colorBlueCloudy: #374151;
 $colorRedError: rgb(184, 17, 17);
@@ -19,7 +20,7 @@ $colorMenu: #4D4192;
 $gradientMain: linear-gradient(90deg, #4776E6 0%, #8E54E9 100%);
 
 // SHADOWS
-$shadow: 0px 3.01109px 9.95282px 0px rgba(55, 65, 81, 0.02), 0px 7.22507px 24.24745px 0px rgba(55, 65, 81, 0.03), 0px 14.14402px 45.89198px 0px rgba(55, 65, 81, 0.06), 0px 27px 80px 0px rgba(55, 65, 81, 0.14);
+$shadow: 0 5px 20px 0 rgba(0, 0, 0, 0.25);
 
 // GAP
 $gapSmall: 1.5rem;

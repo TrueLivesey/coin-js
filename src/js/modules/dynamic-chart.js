@@ -153,7 +153,7 @@ async function drawChart(data, id) {
   });
 
   // Устанавливаем высоту графика
-  chartElement.style.height = '300px';
+  chartElement.style.height = '195px';
 
   // Скрываем легенду
   chartInstance.options.plugins.legend.display = false;

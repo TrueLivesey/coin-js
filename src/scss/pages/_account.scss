@@ -215,13 +215,27 @@
     border-collapse: collapse;
 
     &__title {
-      padding: 25px 0px;
-      margin-left: 40px;
+      display: block;
       text-align: left;
+
+      &-wrapper {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 25px 0px;
+        margin-left: 40px;
+      }
+
+      &-btn {
+        padding: 10px 30px;
+        color: $colorWhite;
+        background-color: $colorBlue;
+        border-radius: 50px;
+      }
     }
 
     &__thead {
-      background-color: $colorBlue;
+      background-color: $colorBlueLight;
     }
 
     &__th {

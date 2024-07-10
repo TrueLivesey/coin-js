@@ -1,0 +1,50 @@
+.exchange {
+  &-form {
+    display: grid;
+    grid-template-columns: repeat(11, 1fr);
+    gap: 30px;
+    max-width: 600px;
+    padding: 25px 50px;
+    background-color: $colorWhite;
+    border-radius: $borderRadiusMain;
+    box-shadow: $shadow;
+
+    &__text-block {
+      grid-column: 4 span;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    &__label {
+      grid-column: 8 span;
+      display: flex;
+      align-items: center;
+      gap: 30px;
+    }
+
+    &__input {
+      width: 100%;
+      padding: 8px 16px;
+      border: 1px solid $colorSantaGray;
+      border-radius: $borderRadius;
+    }
+
+    &__btn {
+      grid-column:  9 / 3 span;
+      grid-row: 2 / 2 span;
+      display: block;
+      width: 100%;
+      height: 100%;
+      color: $colorWhite;
+      font-weight: 600;
+      border-radius: $borderRadius;
+      background-color: $colorBlue;
+      cursor: pointer;
+    }
+  }
+
+  &__title {
+    grid-column: 11 span;
+  }
+}

@@ -10,6 +10,7 @@ import {
   createAccounts,
   createAccountDetails,
   createHistory,
+  createCurrency,
 } from './render';
 import { formValidation, accountFormValidation } from './validate';
 import { Api } from '../api/api';
@@ -143,6 +144,16 @@ function initRouting() {
       const navBtns = [atmsBtn, accountsBtn, currencyBtn];
       const navBtnsLength = navBtns.length;
       const routes = ['atms', 'accounts', 'currency'];
+      const currentUrl = window.location.pathname.slice(1);
+      console.log('currentUrl', currentUrl);
+
+      // Проверка на выбранный раздел
+      function selectBtn(e, btn) {
+        if (e === btn.id.slice(7)) {
+          btn.classList.add('btn-selected');
+          btn.disabled = true;
+        }
+      }
 
       if (!details) {
         changeBtnSelected('accounts', 'add');
@@ -152,9 +163,10 @@ function initRouting() {
 
       for (let i = 0; i < navBtnsLength; ++i) {
         const btn = navBtns[i];
-        btn.addEventListener('click', (e) => {
-          e.preventDefault();
 
+        selectBtn(currentUrl, btn);
+
+        btn.addEventListener('click', (e) => {
           if (header.querySelector('.btn-selected')) {
             const activeBtn = header.querySelector('.btn-selected');
 
@@ -162,8 +174,7 @@ function initRouting() {
             activeBtn.disabled = false;
           }
 
-          btn.classList.add('btn-selected');
-          btn.disabled = true;
+          selectBtn(btn.id.slice(7), btn);
           router.navigate(`${routes[i]}`);
         });
       }
@@ -400,7 +411,8 @@ function initRouting() {
           'Показать ещё',
         );
 
-        acountTableContainer.append(accountTableShowBtn);
+        if (accountTableTrs.length > 9)
+          acountTableContainer.append(accountTableShowBtn);
 
         accountInput.addEventListener('change', () => {
           sum = accountInput.value;
@@ -544,10 +556,62 @@ function initRouting() {
       });
 
       createDynamicChartRatio(dataAccount.payload).then((chartData) => {
-        console.log('chartData:', chartData);
+        // console.log('chartData:', chartData);
         drawChartRatio(chartData, 'history-balance-ratio');
       });
     });
+  });
+
+  // Страница истории
+  router.on('/currency', ({ data }) => {
+    const main = document.querySelector('.main');
+    const app = document.getElementById('app');
+    const containerError = el('.container.container-error');
+    const token = localStorage.getItem('token');
+    const container = el('.container');
+    let accounts = null;
+
+    // Очищаем страницу с авторизацией
+    app.innerHTML = '';
+    main.classList.remove('authorization-main');
+    app.classList.add('account');
+    removeClass(app, 'accounts');
+
+    // если токен пустой, то пользователь не вошел в аккаунт
+    if (!token) {
+      const errorUserNotFound = createError('Вы не вошли в аккаунт');
+      errorUserNotFound.classList.add('user-not-found');
+      mount(app, containerError);
+      mount(containerError, errorUserNotFound);
+    }
+
+    // Создаём навигацию
+    createNav(true);
+    changeBtnSelected('accounts', 'remove');
+
+    // DOM
+    const mainTitle = el('h2.main-title.currency-title', 'Валютный обмен');
+    const currencyWrapper = el('.currency');
+
+    // Получаем все счета пользователя
+    Api.getCurrencies(token).then((data) => {
+      const payload = data.payload;
+
+      // console.log('payload', payload);
+
+      const yourCurrencies = createCurrency().createYourCurrencies(
+        payload,
+        'Ваши валюты',
+      );
+
+      const exchangeForm = createCurrency().createExchange(payload);
+      // console.log(payload.code);
+
+      currencyWrapper.append(yourCurrencies, exchangeForm);
+    });
+
+    container.append(mainTitle, currencyWrapper);
+    app.append(container);
   });
 
   router.resolve();

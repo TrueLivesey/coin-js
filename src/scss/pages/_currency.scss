@@ -1,0 +1,46 @@
+.currency {
+  &-title {
+    margin-bottom: 50px;
+  }
+
+  .your-currencies {
+    max-width: 600px;
+    padding: 25px 50px;
+    margin-bottom: $gap;
+    border-radius: $borderRadiusMain;
+    box-shadow: $shadow;
+
+    &__title {
+      margin-bottom: 20px;
+    }
+
+    &__list {
+      gap: 10px;
+      display: grid;
+      grid-auto-rows: max-content;
+    }
+
+    &-param {
+      &__value {
+        float: right;
+	      padding-left: .2em;
+      }
+
+      &__prop {
+        position: relative;
+        display: block;
+        overflow: hidden;
+        font-weight: 600;
+
+        &::after {
+          content: '';
+          position: absolute;
+          margin-left: .3em;
+          bottom: .35em;
+          width: 100%;
+          border-bottom: .1em dotted;
+        }
+      }
+    }
+  }
+}

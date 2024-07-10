@@ -115,7 +115,7 @@ function createAccount(number, amount, date, dateSort) {
 }
 
 // создание кастомного селекта
-function createAccountsSelect(mode, data = null) {
+function createAccountsSelect(mode, data = null, iconId = null) {
   const select = el('.account-select');
   const selectBtn = el('.account-select__btn');
   const selectPlaceholder = el('span.account-select__placeholder');
@@ -214,6 +214,20 @@ function createAccountsSelect(mode, data = null) {
     selectIcon.id = 'js-account-select-icon-amount';
     selectIcon.classList.add('account-select__icon');
     selectPlaceholder.textContent = 'Выберите номер счёта';
+    selectBtn.classList.add('account-form__select-btn');
+    data.forEach((dataAmount) => {
+      let optionAccount = el(
+        `span#js-amount-${dataAmount}.account-option__text`,
+      );
+      optionAccount.textContent = dataAmount;
+      optionsArr.push(optionAccount);
+    });
+  } else if (mode === 'currency-exchange') {
+    const iconConstId = `exchange${iconId}`;
+    selectIcon = Icons[iconConstId];
+    selectIcon.id = `js-exchange-select-icon-amount-${iconId}`;
+    selectIcon.classList.add('account-select__icon');
+    selectPlaceholder.textContent = `${data[0]}`;
     selectBtn.classList.add('account-form__select-btn');
     data.forEach((dataAmount) => {
       let optionAccount = el(
@@ -419,27 +433,31 @@ function createAccountDetails() {
 
 // История переводов
 function createHistory(data, userData, mode) {
-  let caption = null;
+  let caption = '';
 
   // Кликабельность заголовка
   if (mode === 'clickable') {
     caption = el(
-      'button#history-btn.title-h3.account-table__title',
-      'История переводов',
+      'button#history-btn.account-table__title.account-table__title-btn',
+      'посмотреть историю',
     );
-  } else {
-    caption = el('h3.title-h3.account-table__title', 'История переводов');
   }
 
-  const tabelContainer = el('.account-table-container');
-  const tabel = el('table.account-table');
+  const tableContainer = el('.account-table-container');
+  const tableWrapper = el('.account-wrapper');
+  const table = el('table.account-table');
   const thead = el('thead.account-table__thead');
   const theadTr = el('tr.account-table__thead-tr');
   const theadThArray = ['Счёт отправителя', 'Счёт получателя', 'Сумма', 'Дата'];
   const tbody = el('tbody.account-table__tbody');
+  const tableTitleBlock = el('.account-table__title-wrapper');
+  const tableTitle = el(
+    'h3.title-h3.account-table__title',
+    'История переводов',
+  );
   let i = 0;
 
-  tabel.append(caption);
+  tableTitleBlock.append(tableTitle, caption);
 
   theadThArray.forEach((thName) => {
     const th = el('th.account-table__th', `${thName}`);
@@ -478,10 +496,95 @@ function createHistory(data, userData, mode) {
   });
 
   thead.append(theadTr);
-  tabel.append(thead, tbody);
-  tabelContainer.append(tabel);
+  table.append(thead, tbody);
+  tableWrapper.append(tableTitleBlock, table);
+  tableContainer.append(tableWrapper);
 
-  return tabelContainer;
+  return tableContainer;
+}
+
+// Валютный обмен
+function createCurrency() {
+  function createYourCurrencies(data, titleName) {
+    const wrapper = el('.your-currencies.currency__your-currencies');
+    const title = el('h3.title-h3.your-currencies__title', `${titleName}`);
+    const list = el('ul.your-currencies__list');
+
+    for (const key in data) {
+      // console.log(`${key}: ${data[key].amount}`);
+
+      const item = el('li.your-currencies__item');
+      const param = el('.your-currencies-param');
+      const paramValue = el(
+        'span.your-currencies-param__value',
+        `${data[key].amount}`,
+      );
+      const paramProp = el('.span.your-currencies-param__prop', `${key}`);
+
+      param.append(paramValue, paramProp);
+      item.append(param);
+      list.append(item);
+    }
+
+    wrapper.append(title, list);
+
+    return wrapper;
+  }
+
+  function createExchange(data) {
+    let selectList = [];
+    const form = el('form.exchange-form');
+    const formTitle = el('h3.title-h3.exchange__title', 'Обмен валюты');
+    const formSelectBlock = el('.exchange-form__text-block');
+    const formSelectBlock2 = el('.exchange-form__text-block');
+    const formSelectBlockText = el('span.exchange-form__text', 'Из');
+    const formSelectBlock2Text = el('span.exchange-form__text', 'в');
+    const formBtn = el('input.exchange-form__btn', {
+      type: 'button',
+      value: 'Обменять',
+    });
+    const formLabelSum = el('label.exchange-form__label');
+    const formInputSum = el('input.exchange-form__input', {
+      type: 'text',
+      placeholder: 'введите сумму',
+    });
+    const formLabelSpan = el('span.exchange-form__text', 'Сумма');
+
+    for (const key in data) {
+      selectList.push(key);
+    }
+
+    const formSelect = createAccountsSelect('currency-exchange', selectList, 1);
+    const formSelect2 = createAccountsSelect(
+      'currency-exchange',
+      selectList,
+      2,
+    );
+
+    formSelectBlock.append(formSelectBlockText, formSelect);
+    formSelectBlock2.append(formSelectBlock2Text, formSelect2);
+    formLabelSum.append(formLabelSpan, formInputSum);
+    form.append(
+      formTitle,
+      formSelectBlock,
+      formSelectBlock2,
+      formLabelSum,
+      formBtn,
+    );
+
+    return form;
+  }
+
+  function createChangeRates(data) {
+    const changeRates = el('.change-rates');
+    const wrapper = el('.change-rates__wrapper');
+    const title = el('h3.title-h3.change-rates__title', 'Изменение курсов в реальном времени');
+
+    wrapper.append(title);
+    changeRates.append(wrapper);
+  }
+
+  return { createYourCurrencies, createExchange };
 }
 
 export {
@@ -491,4 +594,5 @@ export {
   createAccounts,
   createAccountDetails,
   createHistory,
+  createCurrency,
 };
