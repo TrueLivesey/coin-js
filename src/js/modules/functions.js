@@ -1,12 +1,19 @@
 import { el, mount } from 'redom';
 
 // Создание ошибки
-function createError(errorText) {
-  const error = el('span.authorization__error');
+function createError(errorText, className = null) {
+  const error = el('span.error');
   error.textContent = errorText;
 
-  if (document.querySelector('.authorization__error')) {
-    document.querySelector('.authorization__error').remove();
+  if (className) {
+    error.classList.add(className);
+  }
+
+  elemRemove('error');
+  elemRemove('account-form__error');
+
+  if (document.querySelector('.error')) {
+    document.querySelector('.error').remove();
   }
 
   return error;

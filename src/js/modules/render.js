@@ -431,6 +431,38 @@ function createAccountDetails() {
   return { createAccountTop, createNewTrans, createBalanceDynamic };
 }
 
+// Создание строки для таблицы в истории переводов
+function createHistoryTr(userData, transaction, i = null) {
+  const tr = el('tr.account-table__tr');
+  const sendersAccount = el('td.account-table__td', `${transaction.from}`);
+  const recipientsAccount = el('td.account-table__td', `${transaction.to}`);
+  const amount = el('td.account-table__td', `${transaction.amount}`);
+  const dateObj = new Date(transaction.date);
+  const date = el(
+    'td.account-table__td',
+    `${dateObj.getDate().toString().padStart(2, '0')}.${(dateObj.getMonth() + 1)
+      .toString()
+      .padStart(2, '0')}.${dateObj.getFullYear()}`,
+  );
+
+  if (userData === transaction.to) {
+    amount.textContent = `+ ${transaction.amount}`;
+    amount.style.color = '#76CA66';
+  } else {
+    amount.textContent = `- ${transaction.amount}`;
+    amount.style.color = '#FD4E5D';
+  }
+
+  if (i && i >= 10) {
+    tr.classList.add('is-hidden');
+  }
+
+  i++;
+  tr.append(sendersAccount, recipientsAccount, amount, date);
+
+  return tr;
+}
+
 // История переводов
 function createHistory(data, userData, mode) {
   let caption = '';
@@ -443,6 +475,7 @@ function createHistory(data, userData, mode) {
     );
   }
 
+  const dataTransactions = data.transactions.reverse();
   const tableContainer = el('.account-table-container');
   const tableWrapper = el('.account-wrapper');
   const table = el('table.account-table');
@@ -465,33 +498,37 @@ function createHistory(data, userData, mode) {
     theadTr.append(th);
   });
 
-  data.transactions.forEach((transaction) => {
-    const tr = el('tr.account-table__tr');
-    const sendersAccount = el('td.account-table__td', `${transaction.from}`);
-    const recipientsAccount = el('td.account-table__td', `${transaction.to}`);
-    const amount = el('td.account-table__td', `${transaction.amount}`);
-    const dateObj = new Date(transaction.date);
-    const date = el(
-      'td.account-table__td',
-      `${dateObj.getDate()}.${(dateObj.getMonth() + 1)
-        .toString()
-        .padStart(2, '0')}.${dateObj.getFullYear()}`,
-    );
+  dataTransactions.forEach((transaction) => {
+    // const tr = el('tr.account-table__tr');
+    // const sendersAccount = el('td.account-table__td', `${transaction.from}`);
+    // const recipientsAccount = el('td.account-table__td', `${transaction.to}`);
+    // const amount = el('td.account-table__td', `${transaction.amount}`);
+    // const dateObj = new Date(transaction.date);
+    // const date = el(
+    //   'td.account-table__td',
+    //   `${dateObj.getDate().toString().padStart(2, '0')}.${(
+    //     dateObj.getMonth() + 1
+    //   )
+    //     .toString()
+    //     .padStart(2, '0')}.${dateObj.getFullYear()}`,
+    // );
 
-    if (userData === transaction.to) {
-      amount.textContent = `+ ${transaction.amount}`;
-      amount.style.color = '#76CA66';
-    } else {
-      amount.textContent = `- ${transaction.amount}`;
-      amount.style.color = '#FD4E5D';
-    }
+    // if (userData === transaction.to) {
+    //   amount.textContent = `+ ${transaction.amount}`;
+    //   amount.style.color = '#76CA66';
+    // } else {
+    //   amount.textContent = `- ${transaction.amount}`;
+    //   amount.style.color = '#FD4E5D';
+    // }
 
-    if (i >= 10) {
-      tr.classList.add('is-hidden');
-    }
+    // if (i >= 10) {
+    //   tr.classList.add('is-hidden');
+    // }
 
-    i++;
-    tr.append(sendersAccount, recipientsAccount, amount, date);
+    // i++;
+    // tr.append(sendersAccount, recipientsAccount, amount, date);
+    const tr = createHistoryTr(userData, transaction, i);
+
     tbody.append(tr);
   });
 
@@ -575,10 +612,13 @@ function createCurrency() {
     return form;
   }
 
-  function createChangeRates(data) {
+  function createChangeRates(data, allCurrencies, wrapper) {
     const changeRates = el('.change-rates');
-    const wrapper = el('.change-rates__wrapper');
-    const title = el('h3.title-h3.change-rates__title', 'Изменение курсов в реальном времени');
+    const content = el('.change-rates__content');
+    const title = el(
+      'h3.title-h3.change-rates__title',
+      'Изменение курсов в реальном времени',
+    );
 
     wrapper.append(title);
     changeRates.append(wrapper);
@@ -593,6 +633,7 @@ export {
   createAccount,
   createAccounts,
   createAccountDetails,
+  createHistoryTr,
   createHistory,
   createCurrency,
 };

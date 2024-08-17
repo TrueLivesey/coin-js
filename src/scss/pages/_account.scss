@@ -179,6 +179,12 @@
       color: $colorGreenError;
     }
 
+    &__error {
+      margin-top: -15px;
+      margin-bottom: 25px;
+      margin-left: 217px;
+      color: $colorRedError;
+    }
   }
 
   &-dynamic {

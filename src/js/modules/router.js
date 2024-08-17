@@ -9,6 +9,7 @@ import {
   createAccount,
   createAccounts,
   createAccountDetails,
+  createHistoryTr,
   createHistory,
   createCurrency,
 } from './render';
@@ -231,7 +232,10 @@ function initRouting() {
 
     // если токен пустой, то пользователь не вошел в аккаунт
     if (!token) {
-      const errorUserNotFound = createError('Вы не вошли в аккаунт');
+      const errorUserNotFound = createError(
+        'Вы не вошли в аккаунт',
+        'authorization__error',
+      );
 
       errorUserNotFound.classList.add('user-not-found');
       mount(app, containerError);
@@ -361,6 +365,7 @@ function initRouting() {
           userDataPayload.account,
           'clickable',
         );
+
         // Динамика баланса
         const balanceDynamic = createAccountDetails().createBalanceDynamic(
           '.account-dynamic',
@@ -386,7 +391,7 @@ function initRouting() {
 
         // Создаем график баланса
         createDynamicChart(userData.payload, 6).then((chartData) => {
-          drawChart(chartData, 'account-balance-chart');
+          drawChart(chartData, 'account-balance-chart', 195);
         });
 
         // Кнопка "Вернуться назад"
@@ -426,30 +431,78 @@ function initRouting() {
           );
 
           if (accountFormValidation(accountSelectBtn, accountInput)) {
-            Api.transferFunds(
-              token,
-              data.id,
-              accountSelect.innerHTML,
-              sum,
-            ).then((userData) => {
-              const balanceElem = document.querySelector(
-                '.account-top__amount',
-              );
-              const accountFormItems = document.querySelectorAll(
-                '.account-form__item',
-              );
-              const accountFormAmount = document.getElementById(
-                'account-form-amount',
-              );
-              const trueValidate = el(
-                'p.account-form__successful',
-                'Перевод прошёл успешно',
-              );
+            Api.transferFunds(token, data.id, accountSelect.innerHTML, sum)
+              .then((userData) => {
+                if (userData.error) {
+                  elemRemove('account-form__error');
 
-              accountFormItems[1].after(trueValidate);
-              accountFormAmount.value = '';
-              balanceElem.innerHTML = `${userData.payload.balance} ₽`;
-            });
+                  let accountError = '';
+                  const accountFormItems = document.querySelectorAll(
+                    '.account-form__item',
+                  );
+                  const userDataError = userData.error;
+
+                  console.log(document.querySelector('account-error'));
+                  if (!document.querySelector('account-error')) {
+                    switch (userDataError) {
+                      case 'Overdraft prevented':
+                        accountError = createError(
+                          'Недостаточно средств для перевода',
+                        );
+                        break;
+                      case 'Invalid amount':
+                        accountError = createError(
+                          'Сумма перевода либо не указана, либо она отрицательная',
+                        );
+                        break;
+                      case 'Invalid account from':
+                        accountError = createError(
+                          'Адрес счёта списания либо не указан, либо вам не принадлежит',
+                        );
+                        break;
+                      case 'Invalid account to':
+                        accountError = createError(
+                          'Счёт зачисления либо не указан, либо его не существует',
+                        );
+                        break;
+                    }
+                  }
+                  accountError.classList.add(
+                    'account-form__item',
+                    'account-form__error',
+                  );
+                  accountFormItems[1].after(accountError);
+                } else {
+                  const balanceElem = document.querySelector(
+                    '.account-top__amount',
+                  );
+                  const accountFormItems = document.querySelectorAll(
+                    '.account-form__item',
+                  );
+                  const accountFormAmount = document.getElementById(
+                    'account-form-amount',
+                  );
+                  const trueValidate = el(
+                    'p.account-form__successful',
+                    'Перевод прошёл успешно',
+                  );
+
+                  accountFormItems[1].after(trueValidate);
+                  accountFormAmount.value = '';
+                  balanceElem.innerHTML = `${userData.payload.balance} ₽`;
+
+                  // console.log(data.id);
+
+                  const newTransaction =
+                    userData.payload.transactions.slice(-1)[0];
+                  const newTr = createHistoryTr(data.id, newTransaction);
+
+                  accountTableTbody.prepend(newTr);
+                }
+              })
+              .catch((error) => {
+                console.log(error);
+              });
           }
         });
 
@@ -552,12 +605,12 @@ function initRouting() {
       });
 
       createDynamicChart(dataAccount.payload, 12).then((chartData) => {
-        drawChart(chartData, 'history-balance-chart');
+        drawChart(chartData, 'history-balance-chart', 300);
       });
 
       createDynamicChartRatio(dataAccount.payload).then((chartData) => {
         // console.log('chartData:', chartData);
-        drawChartRatio(chartData, 'history-balance-ratio');
+        drawChartRatio(chartData, 'history-balance-ratio', 300);
       });
     });
   });
@@ -609,6 +662,20 @@ function initRouting() {
 
       currencyWrapper.append(yourCurrencies, exchangeForm);
     });
+
+    // Получаем список всех валют
+    Api.getAllCurrencies(token).then((data) => {
+      const allCurrencies = data.payload;
+      // console.log(allCurrencies);
+    });
+
+    const socket = Api.getChangedCurrency();
+
+    // console.log(socket);
+
+    // socket.addEventListener('message', (event) => {
+    //   console.log('Message from server ', event.data);
+    // });
 
     container.append(mainTitle, currencyWrapper);
     app.append(container);

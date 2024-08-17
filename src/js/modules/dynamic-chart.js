@@ -77,30 +77,31 @@ async function createDynamicChart(data, mode) {
   }
 }
 
-async function drawChart(data, id) {
+// Плагин для обводки
+const chartAreaBorder = {
+  id: 'chartAreaBorder',
+  beforeDraw(chart, args, options) {
+    const {
+      ctx,
+      chartArea: { top, bottom, left, right },
+    } = chart;
+    ctx.save();
+    ctx.beginPath();
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = 'rgba(23, 23, 23, 1)';
+    ctx.moveTo(left - 18, top);
+    ctx.lineTo(right + 18, top);
+    ctx.lineTo(right + 18, bottom);
+    ctx.lineTo(left - 18, bottom);
+    ctx.closePath();
+    ctx.stroke();
+  },
+};
+
+// Основной график (синий)
+async function drawChart(data, id, width) {
   const chartElement = document.getElementById(id);
   const maxY = Math.max(...data.map((row) => row.amount));
-
-  // Плагин для обводки
-  const chartAreaBorder = {
-    id: 'chartAreaBorder',
-    beforeDraw(chart, args, options) {
-      const {
-        ctx,
-        chartArea: { top, bottom, left, right, width, height },
-      } = chart;
-      ctx.save();
-      ctx.beginPath();
-      ctx.lineWidth = 1;
-      ctx.strokeStyle = 'rgba(23, 23, 23, 1)';
-      ctx.moveTo(left + 2, top);
-      ctx.lineTo(right, top);
-      ctx.lineTo(right, bottom);
-      ctx.lineTo(left + 2, bottom);
-      ctx.closePath();
-      ctx.stroke();
-    },
-  };
 
   // Инициализация Chart.js
   const chartInstance = new Chart(document.getElementById(id), {
@@ -116,11 +117,13 @@ async function drawChart(data, id) {
     },
     options: {
       maintainAspectRatio: false,
+      layout: {
+        padding: {
+          left: 20,
+        },
+      },
       scales: {
         x: {
-          grid: {
-            display: false,
-          },
           ticks: {
             color: 'rgba(23, 23, 23, 1)',
             font: {
@@ -129,11 +132,18 @@ async function drawChart(data, id) {
               weight: 'bold',
             },
           },
+          grid: {
+            display: false,
+          },
+          border: {
+            display: false,
+          },
         },
         y: {
           max: maxY,
           position: 'right',
           ticks: {
+            padding: 20,
             beginAtZero: true,
             maxTicksLimit: 2,
             color: 'rgba(23, 23, 23, 1)',
@@ -146,6 +156,9 @@ async function drawChart(data, id) {
           grid: {
             display: false,
           },
+          border: {
+            display: false,
+          },
         },
       },
     },
@@ -153,7 +166,7 @@ async function drawChart(data, id) {
   });
 
   // Устанавливаем высоту графика
-  chartElement.style.height = '195px';
+  chartElement.style.height = `${width}px`;
 
   // Скрываем легенду
   chartInstance.options.plugins.legend.display = false;
@@ -161,7 +174,6 @@ async function drawChart(data, id) {
 }
 
 // График с разницей в суммах
-
 async function createDynamicChartRatio(data) {
   const transactions = data.transactions;
   const currentDate = new Date();
@@ -207,6 +219,7 @@ async function createDynamicChartRatio(data) {
     }
   });
 
+  // Создание массива данных за последний год
   for (let i = 0; i < lastMonths; ++i) {
     const date = new Date();
     date.setMonth(monthsAgoDate.getMonth() + i);
@@ -230,62 +243,51 @@ async function createDynamicChartRatio(data) {
       incomingAmount: incomingAmount,
       outgoingAmount: outgoingAmount,
     });
+
+    console.log(chartData);
   }
 
   return chartData;
 }
 
-async function drawChartRatio(data, id) {
+// График с соотношением расходов и доходов (зелено-красный)
+async function drawChartRatio(data, id, width) {
   const chartElement = document.getElementById(id);
   let maxY = Math.max(...data.map((row) => row.incomingAmount));
   let minY = -Math.max(...data.map((row) => row.outgoingAmount));
 
-  // Плагин для обводки
-  const chartAreaBorder = {
-    id: 'chartAreaBorder',
-    beforeDraw(chart, args, options) {
-      const {
-        ctx,
-        chartArea: { top, bottom, left, right, width, height },
-      } = chart;
-      ctx.save();
-      ctx.beginPath();
-      ctx.lineWidth = 1;
-      ctx.strokeStyle = 'rgba(23, 23, 23, 1)';
-      ctx.moveTo(left + 2, top);
-      ctx.lineTo(right, top);
-      ctx.lineTo(right, bottom);
-      ctx.lineTo(left + 2, bottom);
-      ctx.closePath();
-      ctx.stroke();
-    },
-  };
-
   // Инициализация Chart.js
-  const chartInstance = new Chart(document.getElementById(id), {
+  const chartInstance = new Chart(chartElement, {
     type: 'bar',
     data: {
       labels: data.map((row) => row.month),
       datasets: [
         {
-          data: data.map((row) => row.incomingAmount),
-          backgroundColor: 'rgba(72, 117, 230, 1)',
+          label: 'Outgoing Amount',
+          data: data.map((row) => row.outgoingAmount),
+          backgroundColor: 'rgba(255, 99, 132, 1)',
+          stack: 'combined',
         },
         {
-          data: data.map((row) => -row.outgoingAmount),
-          backgroundColor: 'rgba(255, 99, 132, 1)',
+          label: 'Incoming Amount',
+          data: data.map((row) => row.incomingAmount),
+          backgroundColor: 'rgba(118, 202, 102, 1)',
+          stack: 'combined',
         },
       ],
     },
     options: {
       maintainAspectRatio: false,
+      layout: {
+        padding: {
+          left: 20,
+        },
+      },
       scales: {
         x: {
           stacked: true,
-          grid: {
-            display: false,
-          },
           ticks: {
+            backdropPadding: 0,
             color: 'rgba(23, 23, 23, 1)',
             font: {
               family: "'Noto Sans', sans-serif",
@@ -293,14 +295,20 @@ async function drawChartRatio(data, id) {
               weight: 'bold',
             },
           },
+          grid: {
+            display: false,
+          },
+          border: {
+            display: false,
+          },
+          offset: true,
         },
         y: {
           max: maxY,
-          min: minY,
-          stacked: true,
+          beginAtZero: true,
           position: 'right',
           ticks: {
-            beginAtZero: true,
+            padding: 20,
             maxTicksLimit: 2,
             color: 'rgba(23, 23, 23, 1)',
             font: {
@@ -312,14 +320,18 @@ async function drawChartRatio(data, id) {
           grid: {
             display: false,
           },
+          border: {
+            display: false,
+          },
         },
+        offset: false,
       },
     },
     plugins: [chartAreaBorder],
   });
 
   // Устанавливаем высоту графика
-  chartElement.style.height = '300px';
+  chartElement.style.height = `${width}px`;
 
   // Скрываем легенду
   chartInstance.options.plugins.legend.display = false;

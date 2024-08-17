@@ -101,8 +101,6 @@ class Api {
       });
       const data = await response.json();
 
-      console.log(to);
-
       return data;
     } catch (error) {
       const newError = new TypeError(error);
@@ -178,6 +176,11 @@ class Api {
 
       return newError;
     }
+  }
+
+  // Обновление курсов валют в реальном времени
+  static getChangedCurrency() {
+    return new WebSocket(`${WS_END_POINT}/currency-feed`);
   }
 }
 
