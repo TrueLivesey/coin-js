@@ -416,8 +416,9 @@ function initRouting() {
           'Показать ещё',
         );
 
-        if (accountTableTrs.length > 9)
+        if (accountTableTrs.length > 9) {
           acountTableContainer.append(accountTableShowBtn);
+        }
 
         accountInput.addEventListener('change', () => {
           sum = accountInput.value;
@@ -425,6 +426,9 @@ function initRouting() {
 
         accountBtn.addEventListener('click', (e) => {
           e.preventDefault();
+
+          elemRemove('account-form__successful');
+          elemRemove('account-form__error');
 
           const accountSelect = document.querySelector(
             '.account-select__placeholder',
@@ -514,7 +518,7 @@ function initRouting() {
             accountTableShowBtn,
             10,
             10,
-            'hidden',
+            'not-hidden',
           );
         }
       }
@@ -590,7 +594,7 @@ function initRouting() {
           historyTableShowBtn,
           10,
           10,
-          'hidden',
+          'not-hidden',
         );
       }
 
@@ -615,7 +619,7 @@ function initRouting() {
     });
   });
 
-  // Страница истории
+  // Страница валют
   router.on('/currency', ({ data }) => {
     const main = document.querySelector('.main');
     const app = document.getElementById('app');
@@ -649,24 +653,36 @@ function initRouting() {
     // Получаем все счета пользователя
     Api.getCurrencies(token).then((data) => {
       const payload = data.payload;
-
-      // console.log('payload', payload);
-
       const yourCurrencies = createCurrency().createYourCurrencies(
         payload,
         'Ваши валюты',
       );
-
       const exchangeForm = createCurrency().createExchange(payload);
-      // console.log(payload.code);
+      let valueCheck = { from: false, to: false };
 
       currencyWrapper.append(yourCurrencies, exchangeForm);
+
+      const exchangeValues = Array.from(
+        document.querySelectorAll('.account-select__placeholder'),
+      );
+      const exchangeBtn = document.getElementById('js-exchange-btn');
+
+      // for (let [key, value] of exchangeValues) {
+      //   if (value.classList.contains('account-select__placeholder-active')) {
+      //     valueCheck[key] = true;
+      //   }
+      // }
+
+      // console.log(valueCheck.0);
+
+      exchangeBtn.addEventListener('submit', (e) => {
+        e.preventDefault();
+      });
     });
 
     // Получаем список всех валют
     Api.getAllCurrencies(token).then((data) => {
       const allCurrencies = data.payload;
-      // console.log(allCurrencies);
     });
 
     const socket = Api.getChangedCurrency();

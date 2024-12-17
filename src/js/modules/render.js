@@ -256,7 +256,10 @@ function createAccountsSelect(mode, data = null, iconId = null) {
       }
 
       selectPlaceholder.innerText = selectedOption;
-      selectPlaceholder.classList.add('account-select__placeholder--black');
+      selectPlaceholder.classList.add(
+        'account-select__placeholder--black',
+        'account-select__placeholder-active',
+      );
       select.classList.remove('active');
     });
     mount(option, optionSpan);
@@ -499,34 +502,6 @@ function createHistory(data, userData, mode) {
   });
 
   dataTransactions.forEach((transaction) => {
-    // const tr = el('tr.account-table__tr');
-    // const sendersAccount = el('td.account-table__td', `${transaction.from}`);
-    // const recipientsAccount = el('td.account-table__td', `${transaction.to}`);
-    // const amount = el('td.account-table__td', `${transaction.amount}`);
-    // const dateObj = new Date(transaction.date);
-    // const date = el(
-    //   'td.account-table__td',
-    //   `${dateObj.getDate().toString().padStart(2, '0')}.${(
-    //     dateObj.getMonth() + 1
-    //   )
-    //     .toString()
-    //     .padStart(2, '0')}.${dateObj.getFullYear()}`,
-    // );
-
-    // if (userData === transaction.to) {
-    //   amount.textContent = `+ ${transaction.amount}`;
-    //   amount.style.color = '#76CA66';
-    // } else {
-    //   amount.textContent = `- ${transaction.amount}`;
-    //   amount.style.color = '#FD4E5D';
-    // }
-
-    // if (i >= 10) {
-    //   tr.classList.add('is-hidden');
-    // }
-
-    // i++;
-    // tr.append(sendersAccount, recipientsAccount, amount, date);
     const tr = createHistoryTr(userData, transaction, i);
 
     tbody.append(tr);
@@ -568,6 +543,7 @@ function createCurrency() {
     return wrapper;
   }
 
+  // Форма с обменом валют
   function createExchange(data) {
     let selectList = [];
     const form = el('form.exchange-form');
@@ -576,7 +552,7 @@ function createCurrency() {
     const formSelectBlock2 = el('.exchange-form__text-block');
     const formSelectBlockText = el('span.exchange-form__text', 'Из');
     const formSelectBlock2Text = el('span.exchange-form__text', 'в');
-    const formBtn = el('input.exchange-form__btn', {
+    const formBtn = el('input#js-exchange-btn.exchange-form__btn', {
       type: 'button',
       value: 'Обменять',
     });
