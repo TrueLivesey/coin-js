@@ -1,6 +1,8 @@
 import { Chart } from 'chart.js/auto';
 import { MonthArray } from '../const';
 
+let months = [];
+
 async function createDynamicChart(data, mode) {
   const transactions = data.transactions;
   const currentDate = new Date();
@@ -10,8 +12,16 @@ async function createDynamicChart(data, mode) {
   let lastMonths = 12;
 
   if (mode === 6) {
+    // страница счёта
+    // Обрезаем названия месяцев до 3 символов (авг, сен, окт)
+    months = MonthArray.map((month) => {
+      return month.slice(0, 3);
+    });
+
     monthsAgoDate.setMonth(currentDate.getMonth() - 5); // 6 месяцев назад
   } else if (mode === 12) {
+    // страница истории счёта
+    months = MonthArray;
     monthsAgoDate.setMonth(currentDate.getMonth() - 11); // 12 месяцев назад
   }
 
@@ -63,7 +73,7 @@ async function createDynamicChart(data, mode) {
         : 0;
 
       chartData.push({
-        month: MonthArray[month - 1],
+        month: months[month - 1],
         amount: amount,
       });
     }
@@ -239,7 +249,7 @@ async function createDynamicChartRatio(data) {
       : 0;
 
     chartData.push({
-      month: MonthArray[month - 1],
+      month: months[month - 1],
       incomingAmount: incomingAmount,
       outgoingAmount: outgoingAmount,
     });
