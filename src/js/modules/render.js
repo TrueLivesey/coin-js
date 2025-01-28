@@ -3,7 +3,7 @@ import { setChildren, mount, el, svg } from 'redom';
 
 // функции приложения
 import { Icons } from '../const';
-import { accountSort, elemRemove } from './functions';
+import { accountSort, elemRemove, removeClass } from './functions';
 import { showMore } from './show-more';
 
 // страница с авторизацией
@@ -624,12 +624,14 @@ function createCurrency() {
   }
 
   // Создание нового элемента li для курсов валют
-  function createChangeRatesItem(data) {
+  function createChangeRatesItem(data, mode) {
     const item = el('li.change-rates__item');
     const param = el('.change-rates-param');
     const value = el('span.change-rates-param__value', data.rate);
     const prop = el('.change-rates-param__prop');
     const text = el('span.change-rates-param__text', `${data.from}/${data.to}`);
+
+    mode === 1 ? param.classList.add('green') : param.classList.add('red');
 
     prop.append(text);
     param.append(value, prop);
@@ -655,7 +657,10 @@ function initSocket() {
 
     if (socketData) {
       // Созданный DOM-элемент курса валют (условно BTC/GBP.....25)
-      const item = createCurrency().createChangeRatesItem(socketData);
+      const item = createCurrency().createChangeRatesItem(
+        socketData,
+        socketData.change,
+      );
 
       if (changeRatesChildren.length === 0) {
         changeRatesList.append(item);
@@ -677,6 +682,21 @@ function initSocket() {
 
       if (isMatch) {
         const valueEl = isMatch.querySelector('.change-rates-param__value');
+        const param = valueEl.parentElement;
+        const paramClass = param.classList[1];
+
+        if (socketData.change === -1) {
+          console.log(valueEl.parentElement.classList[1]);
+          console.log(param);
+        }
+
+        if (socketData.change === 1 && paramClass === 'red') {
+          param.classList.remove(paramClass);
+          param.classList.add('green');
+        } else if (socketData.change === -1 && paramClass === 'green') {
+          param.classList.remove(paramClass);
+          param.classList.add('red');
+        }
 
         valueEl.innerHTML = socketData.rate;
         isInserted = true;

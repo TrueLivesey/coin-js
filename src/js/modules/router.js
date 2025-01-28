@@ -675,6 +675,7 @@ function initRouting() {
           payload,
           'Ваши валюты',
         );
+
         const exchangeForm = createCurrency().createExchange(payload);
         const changeRates = createCurrency().createChangeRates();
 
