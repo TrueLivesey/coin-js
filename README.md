@@ -8,10 +8,10 @@ SPA-приложение на Javascript для банковской систе�
 
 **Internet Explorer не поддерживается**
 
-![Main Page](github-imgs/1.png)
-![View account](github-imgs/2.png)
-![History account](github-imgs/3.png)
-![Currency exchange](github-imgs/4.png)
+![Main Page](gh-screenshots/1.png)
+![View account](gh-screenshots/2.png)
+![History account](gh-screenshots/3.png)
+![Currency exchange](gh-screenshots/4.png)
 
 ## Запуск проекта
 
