@@ -155,7 +155,7 @@ class Api {
   // Валютный обмен
   static async currencyBuy(token, from, to, amount) {
     try {
-      const response = await fetch(`${END_POINT}/transfer-funds`, {
+      const response = await fetch(`${END_POINT}/currency-buy`, {
         method: 'POST',
         body: JSON.stringify({
           from,
@@ -180,7 +180,10 @@ class Api {
 
   // Обновление курсов валют в реальном времени
   static getChangedCurrency() {
-    return new WebSocket(`${WS_END_POINT}/currency-feed`);
+    const webSocket = new WebSocket(`${WS_END_POINT}/currency-feed`);
+
+    console.log(webSocket);
+    return webSocket;
   }
 }
 

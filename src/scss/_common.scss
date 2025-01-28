@@ -18,6 +18,7 @@ body {
 
 main {
   flex: 1 1 auto;
+  margin-bottom: 100px;
 }
 
 a {
@@ -130,6 +131,14 @@ p {
   border: 2px solid $colorRedError;
   border-radius: $borderRadiusModal;
   font-size: 1.5rem;
+}
+
+.error {
+  color: $colorRedError;
+}
+
+.successful {
+  color: $colorGreen;
 }
 
 .preloader {

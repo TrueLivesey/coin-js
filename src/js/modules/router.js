@@ -12,6 +12,7 @@ import {
   createHistoryTr,
   createHistory,
   createCurrency,
+  initSocket,
 } from './render';
 import { formValidation, accountFormValidation } from './validate';
 import { Api } from '../api/api';
@@ -29,11 +30,14 @@ import {
   drawChart,
   drawChartRatio,
 } from './dynamic-chart';
+import { parse } from 'postcss';
 
 // Инициализация роутера
 function initRouting() {
   const router = new Navigo('/');
   const body = window.document.body;
+  let socket = null; // Глобальная переменная для хранения текущего сокета
+  let onMessageHandler = null; // Глобальная переменная для обработчика сообщений
 
   // создание страницы с авторизацией
   function createAuthorization(main, app) {
@@ -200,6 +204,18 @@ function initRouting() {
           closeModal(modalWrapper, overlay);
         });
       });
+    }
+  }
+
+  // Очистка сокета и удаление его обработчика
+  function cleanupSocket() {
+    if (socket) {
+      socket.removeEventListener('message', onMessageHandler); // Удаление обработчика
+      socket.close(); // Закрытие сокета
+      socket = null; // Очистка ссылки на сокет
+      onMessageHandler = null; // Очистка ссылки на обработчик
+      console.log('clean up socket');
+      console.log('socket', socket);
     }
   }
 
@@ -620,82 +636,117 @@ function initRouting() {
   });
 
   // Страница валют
-  router.on('/currency', ({ data }) => {
-    const main = document.querySelector('.main');
-    const app = document.getElementById('app');
-    const containerError = el('.container.container-error');
-    const token = localStorage.getItem('token');
-    const container = el('.container');
-    let accounts = null;
+  router.on(
+    '/currency',
+    ({ data }) => {
+      const main = document.querySelector('.main');
+      const app = document.getElementById('app');
+      const containerError = el('.container.container-error');
+      const token = localStorage.getItem('token');
+      const container = el('.container');
+      let accounts = null;
 
-    // Очищаем страницу с авторизацией
-    app.innerHTML = '';
-    main.classList.remove('authorization-main');
-    app.classList.add('account');
-    removeClass(app, 'accounts');
+      // Очищаем страницу с авторизацией
+      app.innerHTML = '';
+      main.classList.remove('authorization-main');
+      app.classList.add('account');
+      removeClass(app, 'accounts');
 
-    // если токен пустой, то пользователь не вошел в аккаунт
-    if (!token) {
-      const errorUserNotFound = createError('Вы не вошли в аккаунт');
-      errorUserNotFound.classList.add('user-not-found');
-      mount(app, containerError);
-      mount(containerError, errorUserNotFound);
-    }
+      // если токен пустой, то пользователь не вошел в аккаунт
+      if (!token) {
+        const errorUserNotFound = createError('Вы не вошли в аккаунт');
+        errorUserNotFound.classList.add('user-not-found');
+        mount(app, containerError);
+        mount(containerError, errorUserNotFound);
+      }
 
-    // Создаём навигацию
-    createNav(true);
-    changeBtnSelected('accounts', 'remove');
+      // Создаём навигацию
+      createNav(true);
+      changeBtnSelected('accounts', 'remove');
 
-    // DOM
-    const mainTitle = el('h2.main-title.currency-title', 'Валютный обмен');
-    const currencyWrapper = el('.currency');
+      // DOM
+      const mainTitle = el('h2.main-title.currency-title', 'Валютный обмен');
+      const currencyWrapper = el('.currency');
 
-    // Получаем все счета пользователя
-    Api.getCurrencies(token).then((data) => {
-      const payload = data.payload;
-      const yourCurrencies = createCurrency().createYourCurrencies(
-        payload,
-        'Ваши валюты',
-      );
-      const exchangeForm = createCurrency().createExchange(payload);
-      let valueCheck = { from: false, to: false };
+      // Получаем все счета пользователя
+      Api.getCurrencies(token).then((data) => {
+        const payload = data.payload;
+        const yourCurrencies = createCurrency().createYourCurrencies(
+          payload,
+          'Ваши валюты',
+        );
+        const exchangeForm = createCurrency().createExchange(payload);
+        const changeRates = createCurrency().createChangeRates();
 
-      currencyWrapper.append(yourCurrencies, exchangeForm);
+        currencyWrapper.append(yourCurrencies, exchangeForm, changeRates);
+        container.append(mainTitle, currencyWrapper);
 
-      const exchangeValues = Array.from(
-        document.querySelectorAll('.account-select__placeholder'),
-      );
-      const exchangeBtn = document.getElementById('js-exchange-btn');
+        exchangeForm.addEventListener('submit', (e) => {
+          e.preventDefault();
 
-      // for (let [key, value] of exchangeValues) {
-      //   if (value.classList.contains('account-select__placeholder-active')) {
-      //     valueCheck[key] = true;
-      //   }
-      // }
+          const from = exchangeForm
+            .querySelector('#js-exchange-from')
+            .querySelector('.account-select__placeholder').textContent;
+          const to = exchangeForm
+            .querySelector('#js-exchange-to')
+            .querySelector('.account-select__placeholder').textContent;
+          const amount =
+            parseInt(exchangeForm.querySelector('#js-exchange-sum').value) || 0;
 
-      // console.log(valueCheck.0);
+          // Отправялем перевод
+          Api.currencyBuy(token, from, to, amount).then((currencyData) => {
+            const errorCode = currencyData.error;
+            let error = null;
+            // Ловим ошибки
+            switch (errorCode) {
+              case 'Unknown currency code':
+                error = createError('Передан неверный валютный код');
+                break;
+              case 'Invalid amount':
+                error = createError('Не указана сумма перевода');
+                break;
+              case 'Not enough currency':
+                error = createError('На валютном счёте списания нет средств');
+                break;
+              case 'Overdraft prevented':
+                error = createError('Не хватает средств');
+                break;
+              default:
+                error = createError('Перевод выполнен успешно', 'successful');
+                const yourCurrencies =
+                  document.querySelector('.your-currencies');
+                const fromEl = yourCurrencies.querySelector(
+                  `[data-code="${from}"]`,
+                );
+                const toEl = yourCurrencies.querySelector(
+                  `[data-code="${to}"]`,
+                );
 
-      exchangeBtn.addEventListener('submit', (e) => {
-        e.preventDefault();
+                // Обновляем значения валют пользователя
+                fromEl.innerHTML = currencyData.payload[from].amount;
+                toEl.innerHTML = currencyData.payload[to].amount;
+            }
+
+            exchangeForm.querySelector('.exchange-form__content').append(error);
+          });
+        });
+
+        socket = Api.getChangedCurrency(); // Получение сокета из API
+        onMessageHandler = initSocket(socket); // Функция для обработчика
+        // сокета
+
+        // Прослушивание вебсокета
+        socket.addEventListener('message', onMessageHandler);
       });
-    });
-
-    // Получаем список всех валют
-    Api.getAllCurrencies(token).then((data) => {
-      const allCurrencies = data.payload;
-    });
-
-    const socket = Api.getChangedCurrency();
-
-    // console.log(socket);
-
-    // socket.addEventListener('message', (event) => {
-    //   console.log('Message from server ', event.data);
-    // });
-
-    container.append(mainTitle, currencyWrapper);
-    app.append(container);
-  });
+      app.append(container);
+    },
+    {
+      leave(done) {
+        cleanupSocket(); // При переходе на другую страницу очищаем сокет
+        done();
+      },
+    },
+  );
 
   router.resolve();
 }

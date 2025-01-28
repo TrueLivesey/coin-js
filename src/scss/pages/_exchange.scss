@@ -1,23 +1,30 @@
 .exchange {
   &-form {
-    display: grid;
-    grid-template-columns: repeat(11, 1fr);
-    gap: 30px;
-    max-width: 600px;
-    padding: 25px 50px;
+    // display: flex;
+    // flex-direction: column;
+    // justify-content: center;
+    grid-area: exchange;
+    padding: 40px 50px;
     background-color: $colorWhite;
     border-radius: $borderRadiusMain;
     box-shadow: $shadow;
 
+    &__content {
+      display: grid;
+      grid-template-columns: repeat(9, 1fr);
+      gap: 30px;
+    }
+
     &__text-block {
-      grid-column: 4 span;
+      grid-column: 3 span;
       display: flex;
       gap: 10px;
       align-items: center;
     }
 
     &__label {
-      grid-column: 8 span;
+      grid-column: 6 span;
+      // grid-row: 3 / 1 span;
       display: flex;
       align-items: center;
       gap: 30px;
@@ -30,21 +37,29 @@
       border-radius: $borderRadius;
     }
 
-    &__btn {
-      grid-column:  9 / 3 span;
-      grid-row: 2 / 2 span;
+    &__btn[type=submit] {
+      grid-column:  7 / 3 span;
+      grid-row: 1 / 2 span;
       display: block;
       width: 100%;
       height: 100%;
+      padding: .8rem 1.5rem;
       color: $colorWhite;
       font-weight: 600;
       border-radius: $borderRadius;
       background-color: $colorBlue;
       cursor: pointer;
     }
+
+    .error,
+    .successful {
+      grid-column: 9 span;
+      display: block;
+      // padding-top: 30px;
+    }
   }
 
   &__title {
-    grid-column: 11 span;
+    margin-bottom: 30px;
   }
 }

@@ -1,17 +1,25 @@
 .currency {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: 1fr 1fr minmax(250px, auto);
+  grid-template-areas: 
+                "your-currencies change-rates"
+                "your-currencies change-rates"
+                "exchange        change-rates";
+  grid-gap: 40px;
+
   &-title {
     margin-bottom: 50px;
   }
 
   .your-currencies {
-    max-width: 600px;
-    padding: 25px 50px;
-    margin-bottom: $gap;
+    grid-area: your-currencies;
+    padding: 40px 50px;
     border-radius: $borderRadiusMain;
     box-shadow: $shadow;
 
     &__title {
-      margin-bottom: 20px;
+      margin-bottom: 30px;
     }
 
     &__list {

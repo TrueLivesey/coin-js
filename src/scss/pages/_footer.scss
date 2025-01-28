@@ -1,0 +1,12 @@
+.footer {
+  &__container {
+    display: flex;
+    place-content: center;
+    padding-top: 30px;
+    padding-bottom: 30px;
+  }
+  
+  &__link {
+    color: $colorBlue;
+  }
+}

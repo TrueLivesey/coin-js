@@ -1,0 +1,52 @@
+.change-rates {
+  grid-area: change-rates;
+  height: 100%;
+  padding: 40px 50px;
+  background-color: $colorWhite;
+  border-radius: $borderRadiusMain;
+  box-shadow: $shadow;
+  
+  &__content {
+    max-height: 760px;
+    height: 100%;
+    overflow-y: auto;
+  }
+
+  &__title {
+    margin-bottom: 30px;
+  }
+
+  &__list {
+    display: grid;
+    gap: 10px;
+    grid-auto-rows: max-content;
+    padding-right: 10px;
+  }
+
+  &__item {
+    list-style: none;
+  }
+
+  &-param {
+    &__value {
+      float: right;
+      padding-left: .2em;
+    }
+
+    &__prop {
+      position: relative;
+      display: block;
+      overflow: hidden;
+      font-weight: 600;
+
+      &::after {
+        content: '';
+        position: absolute;
+        margin-left: .3em;
+        bottom: .35em;
+        width: 100%;
+        border-bottom: .1em dotted;
+      }
+    }
+  }
+}

@@ -224,11 +224,13 @@ function createAccountsSelect(mode, data = null, iconId = null) {
     });
   } else if (mode === 'currency-exchange') {
     const iconConstId = `exchange${iconId}`;
+
     selectIcon = Icons[iconConstId];
     selectIcon.id = `js-exchange-select-icon-amount-${iconId}`;
     selectIcon.classList.add('account-select__icon');
     selectPlaceholder.textContent = `${data[0]}`;
     selectBtn.classList.add('account-form__select-btn');
+
     data.forEach((dataAmount) => {
       let optionAccount = el(
         `span#js-amount-${dataAmount}.account-option__text`,
@@ -527,11 +529,13 @@ function createCurrency() {
 
       const item = el('li.your-currencies__item');
       const param = el('.your-currencies-param');
+      const paramProp = el('.span.your-currencies-param__prop', `${key}`);
       const paramValue = el(
         'span.your-currencies-param__value',
         `${data[key].amount}`,
       );
-      const paramProp = el('.span.your-currencies-param__prop', `${key}`);
+
+      paramValue.dataset.code = key;
 
       param.append(paramValue, paramProp);
       item.append(param);
@@ -547,21 +551,33 @@ function createCurrency() {
   function createExchange(data) {
     let selectList = [];
     const form = el('form.exchange-form');
+    const formContent = el('.exchange-form__content');
     const formTitle = el('h3.title-h3.exchange__title', 'Обмен валюты');
     const formSelectBlock = el('.exchange-form__text-block');
     const formSelectBlock2 = el('.exchange-form__text-block');
     const formSelectBlockText = el('span.exchange-form__text', 'Из');
-    const formSelectBlock2Text = el('span.exchange-form__text', 'в');
+    const formSelectBlock2Text = el('span.exchange-form__text', 'В');
     const formBtn = el('input#js-exchange-btn.exchange-form__btn', {
-      type: 'button',
+      type: 'submit',
       value: 'Обменять',
     });
     const formLabelSum = el('label.exchange-form__label');
-    const formInputSum = el('input.exchange-form__input', {
-      type: 'text',
+    const formInputSum = el('input#js-exchange-sum.exchange-form__input', {
+      type: 'number',
+      min: '0',
+      onkeypress: 'return event.charCode >= 48 && event.charCode <= 57',
       placeholder: 'введите сумму',
     });
     const formLabelSpan = el('span.exchange-form__text', 'Сумма');
+
+    // Ввод только чисел (запрещается + и -, но "e" остается)
+    formInputSum.addEventListener('keydown', (e) => {
+      if (e.key === '-' || e.key === '+') {
+        e.preventDefault();
+      }
+
+      elemRemove('error');
+    });
 
     for (const key in data) {
       selectList.push(key);
@@ -574,33 +590,121 @@ function createCurrency() {
       2,
     );
 
+    formSelect.id = 'js-exchange-from';
+    formSelect2.id = 'js-exchange-to';
+
     formSelectBlock.append(formSelectBlockText, formSelect);
     formSelectBlock2.append(formSelectBlock2Text, formSelect2);
     formLabelSum.append(formLabelSpan, formInputSum);
-    form.append(
-      formTitle,
+    formContent.append(
       formSelectBlock,
       formSelectBlock2,
       formLabelSum,
       formBtn,
     );
+    form.append(formTitle, formContent);
 
     return form;
   }
 
-  function createChangeRates(data, allCurrencies, wrapper) {
-    const changeRates = el('.change-rates');
+  // Форма с изменением курсов валют в реальном времени
+  function createChangeRates() {
+    const changeRates = el('#js-change-rates.change-rates');
     const content = el('.change-rates__content');
     const title = el(
       'h3.title-h3.change-rates__title',
       'Изменение курсов в реальном времени',
     );
+    const list = el('ul#js-change-rates-list.change-rates__list');
 
-    wrapper.append(title);
-    changeRates.append(wrapper);
+    content.append(list);
+    changeRates.append(title, content);
+
+    return changeRates;
   }
 
-  return { createYourCurrencies, createExchange };
+  // Создание нового элемента li для курсов валют
+  function createChangeRatesItem(data) {
+    const item = el('li.change-rates__item');
+    const param = el('.change-rates-param');
+    const value = el('span.change-rates-param__value', data.rate);
+    const prop = el('.change-rates-param__prop');
+    const text = el('span.change-rates-param__text', `${data.from}/${data.to}`);
+
+    prop.append(text);
+    param.append(value, prop);
+    item.append(param);
+
+    return item;
+  }
+
+  return {
+    createYourCurrencies,
+    createExchange,
+    createChangeRates,
+    createChangeRatesItem,
+  };
+}
+
+// Инициализация сокета (возвращает функцию для обработчика сокета)
+function initSocket() {
+  const onMessageHandler = (event) => {
+    let changeRatesList = document.querySelector('#js-change-rates-list');
+    let changeRatesChildren = Array.from(changeRatesList.children);
+    const socketData = JSON.parse(event.data);
+
+    if (socketData) {
+      // Созданный DOM-элемент курса валют (условно BTC/GBP.....25)
+      const item = createCurrency().createChangeRatesItem(socketData);
+
+      if (changeRatesChildren.length === 0) {
+        changeRatesList.append(item);
+        return;
+      }
+
+      // Сортировка
+      const paramText = `${socketData.from}/${socketData.to}`;
+      const paramTextPrefix = socketData.from;
+      let isInserted = false;
+
+      // Поиск полного совпадения названия валют, чтобы обновить
+      // существующий DOM-элемент
+      const isMatch = changeRatesChildren.find(
+        (e) =>
+          e.querySelector('.change-rates-param__text').textContent ===
+          paramText,
+      );
+
+      if (isMatch) {
+        const valueEl = isMatch.querySelector('.change-rates-param__value');
+
+        valueEl.innerHTML = socketData.rate;
+        isInserted = true;
+
+        return;
+      }
+
+      // Проходим по всем DOM-элементам и сравниваем их с созданным
+      for (let itemEl of changeRatesChildren) {
+        const paramItemEl = itemEl.querySelector('.change-rates-param__text');
+        const paramTextEl = paramItemEl.textContent;
+        const paramTextElPrefix = paramTextEl.slice(0, 3);
+
+        if (paramTextPrefix === paramTextElPrefix) {
+          itemEl.after(item);
+          isInserted = true;
+          break;
+        }
+      }
+
+      // Если не найдено совпадений, добавляем новый элемент в конец списка
+      if (!isInserted) {
+        changeRatesList.append(item);
+      }
+    }
+  };
+
+  return onMessageHandler;
 }
 
 export {
@@ -612,4 +716,5 @@ export {
   createHistoryTr,
   createHistory,
   createCurrency,
+  initSocket,
 };
